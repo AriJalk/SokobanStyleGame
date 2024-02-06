@@ -4,4 +4,5 @@
     Right,
     Up,
     Down,
+    Neutral,
 }

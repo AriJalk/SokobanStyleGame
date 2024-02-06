@@ -16,4 +16,13 @@ public class MapManager
         Borders = new Dictionary<BorderStruct, BorderObject>();
     }
 
+    public TileObject GetTile(Vector2Int position)
+    {
+        if (GameUtilities.IsPositionInBounds(MapGrid, position))
+        {
+            return MapGrid[position.x, position.y];
+        }
+        return null;
+    }
+
 }

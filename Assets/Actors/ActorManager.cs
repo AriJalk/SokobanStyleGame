@@ -7,13 +7,14 @@ using UnityEngine.Timeline;
 
 public class ActorManager
 {
-
+    private UnityEvent<IActorCommands> inputEvents;
 
 
     public ActorObject[,] ActorsGrid;
     public Dictionary<string, ActorType> ActorTypes;
     private PrefabManager prefabManager;
     private Transform actorsLayer;
+    private List<ActorObject> playableActors;
     private int grid_size;
     private float offset;
 
@@ -25,8 +26,8 @@ public class ActorManager
         this.prefabManager = manager.PrefabManager;
         ActorsGrid = new ActorObject[grid_size, grid_size];
         ActorTypes = new Dictionary<string, ActorType>();
-
-        PlayableActorType playableType = new PlayableActorType(manager.InputEvents);
+        inputEvents = manager.InputEvents;
+        PlayableActorType playableType = new PlayableActorType();
         ActorTypes.Add("Player", playableType);
 
         ActorType cube = new ActorType("Cube");
@@ -35,6 +36,19 @@ public class ActorManager
         ActorType sphere = new ActorType("Sphere");
         sphere.SetResourceName("Sphere");
         ActorTypes.Add("Sphere", sphere);
+    }
+
+    private Vector3 CalculateLocalPosition(ActorObject actor)
+    {
+        Vector3 position = new Vector3();
+        int posX = actor.GamePosition.x;
+        int posY = actor.GamePosition.y;
+        if (actor != null)
+        {
+            position.x = posX + posX * offset;
+            position.z = posY + posY * offset;
+        }
+        return position;
     }
 
     public ActorObject CreateNewActor(ActorType actorType)
@@ -56,7 +70,23 @@ public class ActorManager
             actor.transform.SetParent(actorsLayer);
             actor.SetGamePosition(tile.GridPosition);
             actor.transform.localScale = Vector3.one;
-            actor.transform.localPosition = new Vector3(posX + posX * offset, 0, posY + posY * offset);
+            actor.transform.localPosition = CalculateLocalPosition(actor);
         }
+    }
+
+    public ActorObject GetActor(Vector2Int position)
+    {
+        if (GameUtilities.IsPositionInBounds(ActorsGrid, position))
+            return ActorsGrid[position.x, position.y];
+        return null;
+    }
+
+    public void MoveActor(ActorObject actor, Vector2Int directionVector)
+    {
+        ActorsGrid[actor.GamePosition.x, actor.GamePosition.y] = null;
+        Vector2Int newPosition = actor.GamePosition + directionVector;
+        ActorsGrid[newPosition.x, newPosition.y] = actor;
+        actor.SetGamePosition(newPosition);
+        actor.transform.localPosition = CalculateLocalPosition(actor);
     }
 }

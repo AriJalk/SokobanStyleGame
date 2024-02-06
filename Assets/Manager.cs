@@ -13,6 +13,9 @@ public class Manager : MonoBehaviour
     public UnityEvent<IActorCommands> InputEvents;
 
     private TileType tileType;
+    private ActorObject player;
+
+    private Stack<TurnCommands> commandStack;
 
     public PrefabManager PrefabManager { get; private set; }
     public ActorManager ActorManager { get; private set; }
@@ -26,6 +29,7 @@ public class Manager : MonoBehaviour
     private void Awake()
     {
         InputEvents = new UnityEvent<IActorCommands>();
+        commandStack = new Stack<TurnCommands>();
 
         PrefabManager = new PrefabManager(UnactiveObjects);
         PrefabManager.LoadAndRegisterGameObject("Cube", GRID_SIZE * GRID_SIZE);
@@ -56,6 +60,7 @@ public class Manager : MonoBehaviour
         }
         ActorObject player = ActorManager.CreateNewActor(ActorManager.ActorTypes["Player"]);
         ActorManager.AddActorToTile(player, MapManager.MapGrid[4, 4]);
+        this.player = player;
 
         ActorObject cube = ActorManager.CreateNewActor(ActorManager.ActorTypes["Cube"]);
         ActorManager.AddActorToTile(cube, MapManager.MapGrid[2, 2]);
@@ -70,22 +75,28 @@ public class Manager : MonoBehaviour
         CreateBorder(MapManager.MapGrid[2, 2], MapManager.MapGrid[2, 1]);
     }
 
-    private void CreateBorder(TileObject tileA, TileObject tileB)
-    {
-        BorderStruct pair = new BorderStruct(tileA, tileB);
-        if (pair.IsBorderValid())
-        {
-            BorderObject border = PrefabManager.RetrievePoolObject("Border").GetComponent<BorderObject>();
-            border.Initialize(pair, this);
-            MapManager.Borders.Add(pair, border);
-        }
-    }
-
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Keypad8))
         {
+            CreateMoveCommand(player, GameDirection.Up);
+        }
+        else if(Input.GetKeyDown(KeyCode.Keypad2))
+        {
+            CreateMoveCommand(player, GameDirection.Down);
+        }
+        else if (Input.GetKeyDown(KeyCode.Keypad6))
+        {
+            CreateMoveCommand(player, GameDirection.Right);
+        }
+        else if (Input.GetKeyDown(KeyCode.Keypad4))
+        {
+            CreateMoveCommand(player, GameDirection.Left);
+        }
 
+        if (Input.GetKeyDown(KeyCode.Z))
+        {
+            UndoState();
         }
 
     }
@@ -95,8 +106,42 @@ public class Manager : MonoBehaviour
         InputEvents.RemoveAllListeners();
     }
 
+    private void CreateBorder(TileObject tileA, TileObject tileB)
+    {
+        BorderStruct pair = new BorderStruct(tileA, tileB);
+        if (pair.IsBorderValid())
+        {
+            BorderObject border = PrefabManager.RetrievePoolObject("Border").GetComponent<BorderObject>();
+            border.Initialize(pair, this);
+            MapManager.Borders.Add(pair, border);
+            //pair = new BorderStruct(tileB, tileA);
+            //MapManager.Borders.Add(pair, border);
+        }
+    }
+
+    private void CreateMoveCommand(ActorObject actor, GameDirection direction)
+    {
+        ActorMoveCommand command = new ActorMoveCommand(actor, direction, MapManager, ActorManager);
+        TurnCommands turn = new TurnCommands();
+        turn.Commands.Add(command);
+        turn.ExecuteCommands();
+        commandStack.Push(turn);
+    }
+
+
+
     private void ExecuteNextStep()
     {
 
     }
+    private void UndoState()
+    {
+        if(commandStack.Count > 0)
+        {
+            TurnCommands commands = commandStack.Pop();
+            commands.UndoCommands();
+        }
+    }
+
+
 }

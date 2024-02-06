@@ -1,50 +1,48 @@
-﻿using System.Numerics;
+﻿using System.Collections.Generic;
+using System.Numerics;
 using UnityEngine;
 
 public class ActorMoveCommand : IActorCommands
 {
     private ActorObject actor;
-    private Vector2Int originPosition;
-    private Vector2Int targetPosition;
+    private MapManager mapManager;
+    private ActorManager actorManager;
+    private GameDirection direction;
 
-    private MapManager map;
-    public bool CanExecute { get; private set; }
-
-    public ActorMoveCommand(Vector2Int originPosition, Vector2Int direction, TileObject[,] tileGrid, ActorObject[,] actorGrid)
+    public ActorMoveCommand(ActorObject actor, GameDirection direction, MapManager mapManager, ActorManager actorManager)
     {
-        this.originPosition = originPosition;
-        targetPosition = originPosition + direction;
-
-        if (GameUtilities.IsPositionInBounds(map.MapGrid, targetPosition) == true)
-        {
-            if (actorGrid[originPosition.x,originPosition.y] != null)
-            {
-                // Empty
-                if (actorGrid[targetPosition.x,targetPosition.y] == null)
-                {
-                    CanExecute = true;
-                }
-                // Push
-                else
-                {
-
-                }
-            }
-        }
+        this.actor = actor;
+        this.direction = direction;
+        this.mapManager = mapManager;
+        this.actorManager = actorManager;
     }
-
-
-
     public void ExecuteCommand()
     {
-        if (CanExecute == true)
-        {
+        bool result = true;
+        Vector2Int newPosition = DirectionHelper.GetPositionInDirection(actor.GamePosition, direction);
+        if (!GameUtilities.IsPositionInBounds(actorManager.ActorsGrid, newPosition))
+            result = false;
+        TileObject tileA = mapManager.GetTile(actor.GamePosition);
+        TileObject tileB = mapManager.GetTile(newPosition);
+        BorderStruct borderStruct = new BorderStruct(tileA, tileB);
+        if (mapManager.Borders.ContainsKey(borderStruct))
+            result = false;
+        if (actorManager.GetActor(newPosition) != null)
+            result = false;
 
+        if(result == false)
+        {
+            direction = GameDirection.Neutral;
+            return;
         }
+        actorManager.MoveActor(actor, DirectionHelper.GetDirectionVector(direction));
+
+
     }
 
     public void Undo()
     {
-        actor.SetGamePosition(originPosition);
+        GameDirection opposite = DirectionHelper.GetOppositeDirection(direction);
+        actorManager.MoveActor(actor, DirectionHelper.GetDirectionVector(opposite));
     }
 }

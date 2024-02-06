@@ -7,7 +7,7 @@ public static class GameUtilities
     {
         bool result = false;
         if (position.x >= 0 && position.x < grid.GetLength(0) &&
-            position.y >= 0 && position.y <= grid.GetLength(1))
+            position.y >= 0 && position.y < grid.GetLength(1))
         {
             result = true;
         }

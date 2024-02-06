@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 public struct BorderStruct
 {
@@ -18,6 +19,21 @@ public struct BorderStruct
             return false;
         }
         return true;
+    }
+
+    public override bool Equals(object obj)
+    {
+        if (obj is BorderStruct other)
+        {
+            if ((TileA == other.TileA && TileB == other.TileB) ||
+                (TileA == other.TileB && TileB == other.TileA))
+                return true;
+        }
+        return false;
+    }
+    public override int GetHashCode()
+    {
+        return base.GetHashCode();
     }
 }
 
