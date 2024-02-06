@@ -10,12 +10,21 @@ public class Manager : MonoBehaviour
 {
     public const int GRID_SIZE = 5;
     public const float OFFSET = 0.02f;
+
+    public const float INPUT_FREQUENCY = 0.1f;
+    public const float INPUT_REPEAT_DELAY = 0.2f;
+
     public UnityEvent<IActorCommands> InputEvents;
 
     private TileType tileType;
     private ActorObject player;
 
     private Stack<TurnCommands> commandStack;
+
+    private float inputHoldTimer;
+    private float inputRepeatDelayTimer;
+    private KeyCode lastKeyPress;
+    private int repeats;
 
     public PrefabManager PrefabManager { get; private set; }
     public ActorManager ActorManager { get; private set; }
@@ -25,6 +34,38 @@ public class Manager : MonoBehaviour
     public Transform MapLayerTransform;
     public Transform ActorLayerTransform;
     public Transform UnactiveObjects;
+
+    private void OnKeyDown(KeyCode keyCode)
+    {
+        lastKeyPress = keyCode;
+        inputHoldTimer = 0f;
+        inputRepeatDelayTimer = 0f;
+        repeats = 0;
+        CreateMoveCommand(keyCode);
+    }
+
+    private void OnKeyHeld(KeyCode keyCode)
+    {
+        if (lastKeyPress == keyCode)
+        {
+            if (inputRepeatDelayTimer < INPUT_REPEAT_DELAY)
+            {
+                inputRepeatDelayTimer += Time.deltaTime;
+            }
+            else
+            {
+                inputHoldTimer += Time.deltaTime + repeats / 5000f;
+            }
+            if (inputHoldTimer > INPUT_FREQUENCY)
+            {
+                inputHoldTimer = 0f;
+                CreateMoveCommand(keyCode);
+                repeats++;
+            }
+        }
+    }
+
+
 
     private void Awake()
     {
@@ -38,7 +79,6 @@ public class Manager : MonoBehaviour
         PrefabManager.LoadAndRegisterGameObject("Sphere", 10);
         PrefabManager.LoadAndRegisterGameObject("Border", 100);
 
-        //PrefabManager.RegisterPrefab<CubeObject>(Resources.Load<GameObject>("Cube"), GRID_SIZE * GRID_SIZE);
         tileType = new TileType("Basic");
         MapManager = new MapManager();
         MapManager.SetMap(GRID_SIZE, GRID_SIZE);
@@ -80,27 +120,30 @@ public class Manager : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Keypad8))
-        {
-            CreateMoveCommand(player, GameDirection.Up);
-        }
-        else if(Input.GetKeyDown(KeyCode.Keypad2))
-        {
-            CreateMoveCommand(player, GameDirection.Down);
-        }
-        else if (Input.GetKeyDown(KeyCode.Keypad6))
-        {
-            CreateMoveCommand(player, GameDirection.Right);
-        }
-        else if (Input.GetKeyDown(KeyCode.Keypad4))
-        {
-            CreateMoveCommand(player, GameDirection.Left);
-        }
+        if (Input.GetKeyDown(KeyCode.UpArrow))
+            OnKeyDown(KeyCode.UpArrow);
+        else if (Input.GetKey(KeyCode.UpArrow))
+            OnKeyHeld(KeyCode.UpArrow);
+
+        if (Input.GetKeyDown(KeyCode.DownArrow))
+            OnKeyDown(KeyCode.DownArrow);
+        else if (Input.GetKey(KeyCode.DownArrow))
+            OnKeyHeld(KeyCode.DownArrow);
+
+        if (Input.GetKeyDown(KeyCode.LeftArrow))
+            OnKeyDown(KeyCode.LeftArrow);
+        else if (Input.GetKey(KeyCode.LeftArrow))
+            OnKeyHeld(KeyCode.LeftArrow);
+
+        if (Input.GetKeyDown(KeyCode.RightArrow))
+            OnKeyDown(KeyCode.RightArrow);
+        else if (Input.GetKey(KeyCode.RightArrow))
+            OnKeyHeld(KeyCode.RightArrow);
 
         if (Input.GetKeyDown(KeyCode.Z))
-        {
-            UndoState();
-        }
+            OnKeyDown(KeyCode.Z);
+        else if (Input.GetKey(KeyCode.Z))
+            OnKeyHeld(KeyCode.Z);
 
     }
 
@@ -129,11 +172,33 @@ public class Manager : MonoBehaviour
         turn.Commands.Add(command);
         turn.ExecuteCommands();
         //Discard empty command container if no action can be performed
-        if(turn.Commands.Count > 0)
+        if (turn.Commands.Count > 0)
             commandStack.Push(turn);
     }
 
-
+    private void CreateMoveCommand(KeyCode keyCode)
+    {
+        switch (keyCode)
+        {
+            case KeyCode.UpArrow:
+                CreateMoveCommand(player, GameDirection.Up);
+                break;
+            case KeyCode.DownArrow:
+                CreateMoveCommand(player, GameDirection.Down);
+                break;
+            case KeyCode.LeftArrow:
+                CreateMoveCommand(player, GameDirection.Left);
+                break;
+            case KeyCode.RightArrow:
+                CreateMoveCommand(player, GameDirection.Right);
+                break;
+            case KeyCode.Z:
+                UndoState();
+                break;
+            default:
+                break;
+        }
+    }
 
     private void ExecuteNextStep()
     {
@@ -141,7 +206,7 @@ public class Manager : MonoBehaviour
     }
     private void UndoState()
     {
-        if(commandStack.Count > 0)
+        if (commandStack.Count > 0)
         {
             TurnCommands commands = commandStack.Pop();
             commands.UndoCommands();

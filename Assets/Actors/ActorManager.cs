@@ -56,6 +56,7 @@ public class ActorManager
     {
         ActorObject actor = new GameObject().AddComponent<ActorObject>();
         actor.SetActorType(actorType);
+        actor.name = actor.ActorType.Name + " Object";
         //Attach type model
         GameObject model = prefabManager.RetrievePoolObject(actorType.ResourceName);
         GameUtilities.SetParentAndResetPosition(model.transform, actor.transform);
