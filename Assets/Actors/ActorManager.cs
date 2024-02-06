@@ -51,13 +51,12 @@ public class ActorManager
     {
         int posX = tile.GridPosition.x;
         int posY = tile.GridPosition.y;
-        if (tile.ObjectSlot == null)
+        if (ActorsGrid[tile.GridPosition.x, tile.GridPosition.y] == null)
         {
             actor.transform.SetParent(actorsLayer);
             actor.SetGamePosition(tile.GridPosition);
             actor.transform.localScale = Vector3.one;
             actor.transform.localPosition = new Vector3(posX + posX * offset, 0, posY + posY * offset);
-            tile.ObjectSlot = actor.gameObject;
         }
     }
 }

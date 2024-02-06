@@ -17,7 +17,7 @@ public class Manager : MonoBehaviour
     public PrefabManager PrefabManager { get; private set; }
     public ActorManager ActorManager { get; private set; }
 
-    public MapManager MapManager; 
+    public MapManager MapManager;
 
     public Transform MapLayerTransform;
     public Transform ActorLayerTransform;
@@ -32,6 +32,7 @@ public class Manager : MonoBehaviour
         PrefabManager.LoadAndRegisterGameObject("Player", 5);
         PrefabManager.LoadAndRegisterGameObject("Tile", GRID_SIZE * GRID_SIZE);
         PrefabManager.LoadAndRegisterGameObject("Sphere", 10);
+        PrefabManager.LoadAndRegisterGameObject("Border", 100);
 
         //PrefabManager.RegisterPrefab<CubeObject>(Resources.Load<GameObject>("Cube"), GRID_SIZE * GRID_SIZE);
         tileType = new TileType("Basic");
@@ -57,10 +58,27 @@ public class Manager : MonoBehaviour
         ActorManager.AddActorToTile(player, MapManager.MapGrid[4, 4]);
 
         ActorObject cube = ActorManager.CreateNewActor(ActorManager.ActorTypes["Cube"]);
-        ActorManager.AddActorToTile(cube, MapManager.MapGrid[2,2]);
+        ActorManager.AddActorToTile(cube, MapManager.MapGrid[2, 2]);
 
         ActorObject sphere = ActorManager.CreateNewActor(ActorManager.ActorTypes["Sphere"]);
         ActorManager.AddActorToTile(sphere, MapManager.MapGrid[1, 1]);
+
+        CreateBorder(MapManager.MapGrid[0, 0], MapManager.MapGrid[1, 0]);
+        CreateBorder(MapManager.MapGrid[0, 0], MapManager.MapGrid[0, 1]);
+
+        CreateBorder(MapManager.MapGrid[2, 2], MapManager.MapGrid[2, 3]);
+        CreateBorder(MapManager.MapGrid[2, 2], MapManager.MapGrid[2, 1]);
+    }
+
+    private void CreateBorder(TileObject tileA, TileObject tileB)
+    {
+        BorderStruct pair = new BorderStruct(tileA, tileB);
+        if (pair.IsBorderValid())
+        {
+            BorderObject border = PrefabManager.RetrievePoolObject("Border").GetComponent<BorderObject>();
+            border.Initialize(pair, this);
+            MapManager.Borders.Add(pair, border);
+        }
     }
 
     private void Update()
@@ -79,6 +97,6 @@ public class Manager : MonoBehaviour
 
     private void ExecuteNextStep()
     {
-       
+
     }
 }
