@@ -6,8 +6,8 @@ using UnityEngine;
 public class PrefabManager
 {
     private bool isInitialized = false;
-    private Dictionary<string, PrefabPool> pools;
-    private Dictionary<string, GameObject> prefabDict;
+    private readonly Dictionary<string, PrefabPool> pools;
+    private readonly Dictionary<string, GameObject> prefabDict;
     private Transform unactiveObjects;
     private readonly int initialPoolSize = 100;
 

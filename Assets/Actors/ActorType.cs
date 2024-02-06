@@ -12,4 +12,9 @@
     {
         return;
     }
+
+    public void SetResourceName(string resourceName)
+    {
+        ResourceName = resourceName;
+    }
 }
