@@ -2,6 +2,7 @@
 {
     public string Name { get; private set; }
     public string ResourceName {  get; protected set; }
+    public bool CanPush { get; protected set; }
 
     public ActorType(string name)
     {
@@ -16,5 +17,10 @@
     public void SetResourceName(string resourceName)
     {
         ResourceName = resourceName;
+    }
+
+    public void SetCanPush(bool canPush)
+    {
+        CanPush = canPush;
     }
 }

@@ -32,6 +32,7 @@ public class ActorManager
 
         ActorType cube = new ActorType("Cube");
         cube.SetResourceName("Cube");
+        cube.SetCanPush(true);
         ActorTypes.Add("Cube", cube);
         ActorType sphere = new ActorType("Sphere");
         sphere.SetResourceName("Sphere");
@@ -71,6 +72,7 @@ public class ActorManager
             actor.SetGamePosition(tile.GridPosition);
             actor.transform.localScale = Vector3.one;
             actor.transform.localPosition = CalculateLocalPosition(actor);
+            ActorsGrid[tile.GridPosition.x, tile.GridPosition.y] = actor;
         }
     }
 

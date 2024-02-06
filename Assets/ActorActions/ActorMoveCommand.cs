@@ -8,6 +8,9 @@ public class ActorMoveCommand : IActorCommands
     private MapManager mapManager;
     private ActorManager actorManager;
     private GameDirection direction;
+    private ActorMoveCommand innerCommand;
+
+    public bool Result { get; private set; }
 
     public ActorMoveCommand(ActorObject actor, GameDirection direction, MapManager mapManager, ActorManager actorManager)
     {
@@ -18,21 +21,34 @@ public class ActorMoveCommand : IActorCommands
     }
     public void ExecuteCommand()
     {
-        bool result = true;
+        Result = true;
         Vector2Int newPosition = DirectionHelper.GetPositionInDirection(actor.GamePosition, direction);
         if (!GameUtilities.IsPositionInBounds(actorManager.ActorsGrid, newPosition))
-            result = false;
+            Result = false;
         TileObject tileA = mapManager.GetTile(actor.GamePosition);
         TileObject tileB = mapManager.GetTile(newPosition);
         BorderStruct borderStruct = new BorderStruct(tileA, tileB);
         if (mapManager.Borders.ContainsKey(borderStruct))
-            result = false;
-        if (actorManager.GetActor(newPosition) != null)
-            result = false;
+            Result = false;
+        ActorObject otherActor = actorManager.GetActor(newPosition);
+        if (otherActor != null)
+        {
+            if (actor.ActorType.CanPush)
+            {
+                innerCommand = new ActorMoveCommand(otherActor, direction, mapManager, actorManager);
+                innerCommand.ExecuteCommand();
+                Result &= innerCommand.Result;
+            }
+            else
+            {
+                Result = false;
+            }
+        }
 
-        if(result == false)
+        if (Result == false)
         {
             direction = GameDirection.Neutral;
+            innerCommand = null;
             return;
         }
         actorManager.MoveActor(actor, DirectionHelper.GetDirectionVector(direction));
@@ -44,5 +60,9 @@ public class ActorMoveCommand : IActorCommands
     {
         GameDirection opposite = DirectionHelper.GetOppositeDirection(direction);
         actorManager.MoveActor(actor, DirectionHelper.GetDirectionVector(opposite));
+        if (innerCommand != null)
+        {
+            innerCommand.Undo();
+        }
     }
 }

@@ -11,15 +11,20 @@ public class TurnCommands
 
     public void ExecuteCommands()
     {
-        foreach(IActorCommands command in Commands)
+        for (int i = 0; i < Commands.Count; i++)
         {
-            command.ExecuteCommand();
+            Commands[i].ExecuteCommand();
+            //Discard failed commands
+            if (Commands[i].Result == false)
+            {
+                Commands.RemoveAt(i);
+            }
         }
     }
 
     public void UndoCommands()
     {
-        foreach(IActorCommands command in Commands)
+        foreach (IActorCommands command in Commands)
         {
             command.Undo();
         }

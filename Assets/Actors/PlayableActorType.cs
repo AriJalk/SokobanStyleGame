@@ -7,5 +7,6 @@ public class PlayableActorType : ActorType
     public PlayableActorType() : base(NAME)
     {
         ResourceName = "Player";
+        CanPush = true;
     }
 }

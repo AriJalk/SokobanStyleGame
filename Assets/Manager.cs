@@ -65,6 +65,9 @@ public class Manager : MonoBehaviour
         ActorObject cube = ActorManager.CreateNewActor(ActorManager.ActorTypes["Cube"]);
         ActorManager.AddActorToTile(cube, MapManager.MapGrid[2, 2]);
 
+        cube = ActorManager.CreateNewActor(ActorManager.ActorTypes["Cube"]);
+        ActorManager.AddActorToTile(cube, MapManager.MapGrid[3, 3]);
+
         ActorObject sphere = ActorManager.CreateNewActor(ActorManager.ActorTypes["Sphere"]);
         ActorManager.AddActorToTile(sphere, MapManager.MapGrid[1, 1]);
 
@@ -125,7 +128,9 @@ public class Manager : MonoBehaviour
         TurnCommands turn = new TurnCommands();
         turn.Commands.Add(command);
         turn.ExecuteCommands();
-        commandStack.Push(turn);
+        //Discard empty command container if no action can be performed
+        if(turn.Commands.Count > 0)
+            commandStack.Push(turn);
     }
 
 
