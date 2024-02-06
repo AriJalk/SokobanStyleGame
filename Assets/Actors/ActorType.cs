@@ -1,6 +1,7 @@
 ﻿public class ActorType
 {
     public string Name { get; private set; }
+    public string ResourceName {  get; protected set; }
 
     public ActorType(string name)
     {

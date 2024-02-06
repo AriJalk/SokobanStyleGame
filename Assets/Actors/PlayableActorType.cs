@@ -2,11 +2,14 @@
 
 public class PlayableActorType : ActorType
 {
+    const string NAME = "Playable Actor";
     private IActorCommands nextStepCommand;
     public UnityEvent<IActorCommands> inputEvents { get; private set; }
-    public PlayableActorType(string name) : base(name)
+    public PlayableActorType(UnityEvent<IActorCommands> inputEvents) : base(NAME)
     {
-
+        ResourceName = "Player";
+        this.inputEvents = inputEvents;
+        inputEvents.AddListener(SetNextStepCommand);
     }
 
     private void SetNextStepCommand(IActorCommands command)

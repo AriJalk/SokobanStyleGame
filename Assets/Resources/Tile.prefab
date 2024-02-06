@@ -160,4 +160,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 45a1039af2dba764f832ff6932beef2c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ObjectSlotTransform: {fileID: 8940741894907725610}
+  objectSlotTransform: {fileID: 8940741894907725610}

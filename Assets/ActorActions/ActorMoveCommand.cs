@@ -4,56 +4,32 @@ using UnityEngine;
 public class ActorMoveCommand : IActorCommands
 {
     private ActorObject actor;
-    private Vector2Int newPosition;
+    private Vector2Int originPosition;
+    private Vector2Int targetPosition;
 
-    private TileObject[,] map;
-    private bool canExecute;
-    public ActorMoveCommand(ActorObject actor, GameDirection direction, short steps, TileObject[,] map)
+    private MapManager map;
+    public bool CanExecute { get; private set; }
 
+    public ActorMoveCommand(Vector2Int originPosition, Vector2Int direction, TileObject[,] tileGrid, ActorObject[,] actorGrid)
     {
-        canExecute = false;
-        this.actor = actor;
-        this.map = map;
-        newPosition = actor.GamePosition;
-        switch (direction)
-        {
-            case GameDirection.Left:
-                newPosition += Vector2Int.left;
-                break;
-            case GameDirection.Right:
-                newPosition += Vector2Int.right;
-                break;
-            case GameDirection.Up:
-                newPosition += Vector2Int.up;
-                break;
-            case GameDirection.Down:
-                newPosition += Vector2Int.down;
-                break;
-            case GameDirection.UpLeft:
-                newPosition += Vector2Int.up + Vector2Int.left;
-                break;
-            case GameDirection.UpRight:
-                newPosition += Vector2Int.up + Vector2Int.right;
-                break;
-            case GameDirection.DownLeft:
-                newPosition += Vector2Int.down + Vector2Int.left;
-                break;
-            case GameDirection.DownRight:
-                newPosition += Vector2Int.down + Vector2Int.right;
-                break;
-            case GameDirection.Wait:
-                break;
-            default:
-                break;
-        }
+        this.originPosition = originPosition;
+        targetPosition = originPosition + direction;
 
-        if (newPosition.x >= 0 && newPosition.x <= map.GetLength(0) - 1 &&
-            newPosition.y >= 0 && newPosition.y <= map.GetLength(1) - 1 &&
-            map[newPosition.x, newPosition.y].ObjectSlot == null)
-
+        if (GameUtilities.IsPositionInBounds(map.MapGrid, targetPosition) == true)
         {
-            TileObject tile = map[newPosition.x, newPosition.y];
-            canExecute = true;
+            if (actorGrid[originPosition.x,originPosition.y] != null)
+            {
+                // Empty
+                if (actorGrid[targetPosition.x,targetPosition.y] == null)
+                {
+                    CanExecute = true;
+                }
+                // Push
+                else
+                {
+
+                }
+            }
         }
     }
 
@@ -61,10 +37,14 @@ public class ActorMoveCommand : IActorCommands
 
     public void ExecuteCommand()
     {
-        if (canExecute == true)
+        if (CanExecute == true)
         {
-            actor.SetGamePosition(newPosition);
 
         }
+    }
+
+    public void Undo()
+    {
+        actor.SetGamePosition(originPosition);
     }
 }

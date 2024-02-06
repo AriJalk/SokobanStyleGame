@@ -4,16 +4,16 @@ using UnityEngine;
 
 namespace EDBG.Engine.ResourceManagement
 {
-    public class PrefabPool<T> where T : Component
+    public class PrefabPool
     {
-        private Queue<T> queue;
+        private Queue<GameObject> queue;
 
         public PrefabPool()
         {
-            queue = new Queue<T>();
+            queue = new Queue<GameObject>();
         }
 
-        public T RetrieveQueueObject()
+        public GameObject RetrieveQueueObject()
         {
             if (queue == null)
                 return null;
@@ -23,7 +23,7 @@ namespace EDBG.Engine.ResourceManagement
         }
 
 
-        public void AddQueueObject(T newObj)
+        public void AddQueueObject(GameObject newObj)
         {
             queue.Enqueue(newObj);
         }
