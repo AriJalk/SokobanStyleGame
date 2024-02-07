@@ -7,7 +7,7 @@ public class BorderObject : MonoBehaviour
     public BorderStruct BorderStruct { get; private set; }
 
 
-    public void Initialize(BorderStruct borderStruct, Manager manager)
+    public void Initialize(BorderStruct borderStruct, GameManager manager)
     {
 
         BorderStruct = borderStruct;

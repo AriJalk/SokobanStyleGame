@@ -7,9 +7,6 @@ using UnityEngine.Timeline;
 
 public class ActorManager
 {
-    private UnityEvent<IActorCommands> inputEvents;
-
-
     public ActorObject[,] ActorsGrid;
     public Dictionary<string, ActorType> ActorTypes;
     private PrefabManager prefabManager;
@@ -18,15 +15,14 @@ public class ActorManager
     private int grid_size;
     private float offset;
 
-    public ActorManager(Manager manager)
+    public ActorManager(GameManager manager)
     {
-        grid_size = Manager.GRID_SIZE;
-        offset = Manager.OFFSET;
+        grid_size = GameManager.GRID_SIZE;
+        offset = GameManager.OFFSET;
         actorsLayer = manager.ActorLayerTransform;
         this.prefabManager = manager.PrefabManager;
         ActorsGrid = new ActorObject[grid_size, grid_size];
         ActorTypes = new Dictionary<string, ActorType>();
-        inputEvents = manager.InputEvents;
         PlayableActorType playableType = new PlayableActorType();
         ActorTypes.Add("Player", playableType);
 

@@ -6,3 +6,13 @@
     Down,
     Neutral,
 }
+
+public enum GameActions
+{
+    MoveLeft,
+    MoveRight,
+    MoveUp,
+    MoveDown,
+
+    Undo,
+}

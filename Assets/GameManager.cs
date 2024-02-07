@@ -6,25 +6,18 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Playables;
 
-public class Manager : MonoBehaviour
+public class GameManager : MonoBehaviour
 {
     public const int GRID_SIZE = 5;
     public const float OFFSET = 0.02f;
 
-    public const float INPUT_FREQUENCY = 0.1f;
-    public const float INPUT_REPEAT_DELAY = 0.2f;
-
-    public UnityEvent<IActorCommands> InputEvents;
-
     private TileType tileType;
     private ActorObject player;
 
+    private GameInputManager gameInputManager;
+
     private Stack<TurnCommands> commandStack;
 
-    private float inputHoldTimer;
-    private float inputRepeatDelayTimer;
-    private KeyCode lastKeyPress;
-    private int repeats;
 
     public PrefabManager PrefabManager { get; private set; }
     public ActorManager ActorManager { get; private set; }
@@ -35,41 +28,13 @@ public class Manager : MonoBehaviour
     public Transform ActorLayerTransform;
     public Transform UnactiveObjects;
 
-    private void OnKeyDown(KeyCode keyCode)
-    {
-        lastKeyPress = keyCode;
-        inputHoldTimer = 0f;
-        inputRepeatDelayTimer = 0f;
-        repeats = 0;
-        CreateMoveCommand(keyCode);
-    }
-
-    private void OnKeyHeld(KeyCode keyCode)
-    {
-        if (lastKeyPress == keyCode)
-        {
-            if (inputRepeatDelayTimer < INPUT_REPEAT_DELAY)
-            {
-                inputRepeatDelayTimer += Time.deltaTime;
-            }
-            else
-            {
-                inputHoldTimer += Time.deltaTime + repeats / 5000f;
-            }
-            if (inputHoldTimer > INPUT_FREQUENCY)
-            {
-                inputHoldTimer = 0f;
-                CreateMoveCommand(keyCode);
-                repeats++;
-            }
-        }
-    }
-
 
 
     private void Awake()
     {
-        InputEvents = new UnityEvent<IActorCommands>();
+        gameInputManager = new GameInputManager();
+        gameInputManager.ActionTriggeredEvent.AddListener(CreateCommand);
+
         commandStack = new Stack<TurnCommands>();
 
         PrefabManager = new PrefabManager(UnactiveObjects);
@@ -120,36 +85,13 @@ public class Manager : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.UpArrow))
-            OnKeyDown(KeyCode.UpArrow);
-        else if (Input.GetKey(KeyCode.UpArrow))
-            OnKeyHeld(KeyCode.UpArrow);
-
-        if (Input.GetKeyDown(KeyCode.DownArrow))
-            OnKeyDown(KeyCode.DownArrow);
-        else if (Input.GetKey(KeyCode.DownArrow))
-            OnKeyHeld(KeyCode.DownArrow);
-
-        if (Input.GetKeyDown(KeyCode.LeftArrow))
-            OnKeyDown(KeyCode.LeftArrow);
-        else if (Input.GetKey(KeyCode.LeftArrow))
-            OnKeyHeld(KeyCode.LeftArrow);
-
-        if (Input.GetKeyDown(KeyCode.RightArrow))
-            OnKeyDown(KeyCode.RightArrow);
-        else if (Input.GetKey(KeyCode.RightArrow))
-            OnKeyHeld(KeyCode.RightArrow);
-
-        if (Input.GetKeyDown(KeyCode.Z))
-            OnKeyDown(KeyCode.Z);
-        else if (Input.GetKey(KeyCode.Z))
-            OnKeyHeld(KeyCode.Z);
+        gameInputManager.Listen();
 
     }
 
     private void OnDestroy()
     {
-        InputEvents.RemoveAllListeners();
+        gameInputManager.ActionTriggeredEvent.RemoveListener(CreateCommand);
     }
 
     private void CreateBorder(TileObject tileA, TileObject tileB)
@@ -176,29 +118,7 @@ public class Manager : MonoBehaviour
             commandStack.Push(turn);
     }
 
-    private void CreateMoveCommand(KeyCode keyCode)
-    {
-        switch (keyCode)
-        {
-            case KeyCode.UpArrow:
-                CreateMoveCommand(player, GameDirection.Up);
-                break;
-            case KeyCode.DownArrow:
-                CreateMoveCommand(player, GameDirection.Down);
-                break;
-            case KeyCode.LeftArrow:
-                CreateMoveCommand(player, GameDirection.Left);
-                break;
-            case KeyCode.RightArrow:
-                CreateMoveCommand(player, GameDirection.Right);
-                break;
-            case KeyCode.Z:
-                UndoState();
-                break;
-            default:
-                break;
-        }
-    }
+
 
     private void ExecuteNextStep()
     {
@@ -213,5 +133,27 @@ public class Manager : MonoBehaviour
         }
     }
 
-
+    public void CreateCommand(GameActions action)
+    {
+        switch (action)
+        {
+            case GameActions.MoveUp:
+                CreateMoveCommand(player, GameDirection.Up);
+                break;
+            case GameActions.MoveDown:
+                CreateMoveCommand (player, GameDirection.Down);
+                break;
+            case GameActions.MoveLeft:
+                CreateMoveCommand(player, GameDirection.Left);
+                break;
+            case GameActions.MoveRight:
+                CreateMoveCommand(player, GameDirection.Right);
+                break;
+            case GameActions.Undo:
+                UndoState();
+                break;
+            default:
+                break;
+        }
+    }
 }
