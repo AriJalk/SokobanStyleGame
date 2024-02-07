@@ -20,4 +20,21 @@ public static class GameUtilities
         child.localPosition = Vector3.zero;
         child.localScale = Vector3.one;
     }
+
+    public static GameActions GetOppositeAction(GameActions action)
+    {
+        switch (action)
+        {
+            case GameActions.MoveLeft:
+                return GameActions.MoveRight;
+            case GameActions.MoveRight:
+                return GameActions.MoveLeft;
+            case GameActions.MoveUp:
+                return GameActions.MoveDown;
+            case GameActions.MoveDown:
+                return GameActions.MoveUp;
+            default:
+                return GameActions.Null;
+        }
+    }
 }

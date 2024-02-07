@@ -152,6 +152,12 @@ public class GameManager : MonoBehaviour
             case GameActions.Undo:
                 UndoState();
                 break;
+            case GameActions.Reset:
+                while(commandStack.Count > 0)
+                {
+                    commandStack.Pop().UndoCommands();
+                }
+                break;
             default:
                 break;
         }

@@ -34,7 +34,11 @@ public class GameInputManager
             {GameActions.MoveLeft, new ActionBinding(GameActions.MoveLeft, new List<KeyCode> {KeyCode.LeftArrow, KeyCode.Keypad4, KeyCode.A}) },
             {GameActions.MoveRight, new ActionBinding(GameActions.MoveRight, new List<KeyCode> {KeyCode.RightArrow, KeyCode.Keypad6, KeyCode.D}) },
             {GameActions.Undo, new ActionBinding(GameActions.Undo, new List<KeyCode> {KeyCode.Z, KeyCode.U}) },
+            {GameActions.Reset, new ActionBinding(GameActions.Reset, KeyCode.R) },
         };
+        // Set negatives
+        BindingDictionary[GameActions.MoveUp].SetNegativeAction(BindingDictionary[GameActions.MoveDown]);
+        BindingDictionary[GameActions.MoveLeft].SetNegativeAction(BindingDictionary[GameActions.MoveRight]);
     }
 
     private void OnActionDown(GameActions action)
@@ -72,23 +76,65 @@ public class GameInputManager
         }
     }
 
-    public void Listen()
+    private void ProccessKeys(List<ActionBinding> bindings, out List<ActionBinding> downTriggers, out List<ActionBinding> holdTriggers)
     {
-        foreach (ActionBinding binding in BindingDictionary.Values)
+        downTriggers = new List<ActionBinding>();
+        holdTriggers = new List<ActionBinding>();
+
+        foreach (ActionBinding binding in bindings)
         {
             foreach (KeyCode key in binding.Keys)
             {
+                //Read key press down, if not check for holding
                 if (Input.GetKeyDown(key))
                 {
-                    OnActionDown(binding.Action);
+                    downTriggers.Add(binding);
                     break;
                 }
                 else if (Input.GetKey(key))
                 {
-                    OnActionHeld(binding.Action);
+                    holdTriggers.Add(binding);
                     break;
                 }
             }
         }
+    }
+
+    private void TriggerActions(List<ActionBinding> bindings, bool isHold)
+    {
+        while (bindings.Count > 0)
+        {
+            ActionBinding binding = bindings[0];
+            // Remove pairs of simultanious negative actions
+            if (binding.NegativeAction != null && bindings.Contains(binding.NegativeAction))
+            {
+                bindings.Remove(binding.NegativeAction);
+                bindings.Remove(binding);
+            }
+            else
+            {
+                if (isHold)
+                    OnActionHeld(binding.Action);
+                else
+                    OnActionDown(binding.Action);
+
+                bindings.Remove(binding);
+            }
+        }
+    }
+
+
+    public void Listen()
+    {
+        List<ActionBinding> bindings = new List<ActionBinding>(BindingDictionary.Values);
+        List<ActionBinding> downTriggers, holdTriggers;
+
+        ProccessKeys(bindings, out downTriggers, out holdTriggers);
+
+        if (downTriggers.Count > 0)
+            TriggerActions(downTriggers, false);
+        else if (holdTriggers.Count > 0)
+            TriggerActions(holdTriggers, true);
+
     }
 }

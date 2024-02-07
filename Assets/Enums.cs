@@ -15,4 +15,7 @@ public enum GameActions
     MoveDown,
 
     Undo,
+    Reset,
+
+    Null,
 }
