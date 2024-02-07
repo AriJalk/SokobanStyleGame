@@ -25,15 +25,16 @@ public class ActorMoveCommand : IActorCommands
         Vector2Int newPosition = DirectionHelper.GetPositionInDirection(actor.GamePosition, direction);
         if (!GameUtilities.IsPositionInBounds(actorManager.ActorsGrid, newPosition))
             Result = false;
-        TileObject tileA = mapManager.GetTile(actor.GamePosition);
-        TileObject tileB = mapManager.GetTile(newPosition);
+        ActorObject tileA = mapManager.GetTile(actor.GamePosition);
+        ActorObject tileB = mapManager.GetTile(newPosition);
         BorderStruct borderStruct = new BorderStruct(tileA, tileB);
         if (mapManager.Borders.ContainsKey(borderStruct))
             Result = false;
         ActorObject otherActor = actorManager.GetActor(newPosition);
         if (otherActor != null)
         {
-            if (actor.ActorType.CanPush)
+            EntityActorType actorType = actor.ActorType as EntityActorType;
+            if (actorType.CanPush)
             {
                 innerCommand = new ActorMoveCommand(otherActor, direction, mapManager, actorManager);
                 innerCommand.ExecuteCommand();

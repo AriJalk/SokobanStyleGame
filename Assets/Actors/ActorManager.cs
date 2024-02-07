@@ -7,13 +7,16 @@ using UnityEngine.Timeline;
 
 public class ActorManager
 {
-    public ActorObject[,] ActorsGrid;
-    public Dictionary<string, ActorType> ActorTypes;
     private PrefabManager prefabManager;
     private Transform actorsLayer;
     private List<ActorObject> playableActors;
     private int grid_size;
     private float offset;
+
+    public ActorObject[,] ActorsGrid {  get; private set; }
+    public Dictionary<string, ActorType> ActorTypes { get; private set; }
+
+
 
     public ActorManager(GameManager manager)
     {
@@ -23,16 +26,17 @@ public class ActorManager
         this.prefabManager = manager.PrefabManager;
         ActorsGrid = new ActorObject[grid_size, grid_size];
         ActorTypes = new Dictionary<string, ActorType>();
+
         PlayableActorType playableType = new PlayableActorType();
         ActorTypes.Add("Player", playableType);
 
-        ActorType cube = new ActorType("Cube");
-        cube.SetResourceName("Cube");
-        cube.SetCanPush(true);
+        EntityActorType cube = new EntityActorType("Cube", true);
         ActorTypes.Add("Cube", cube);
-        ActorType sphere = new ActorType("Sphere");
-        sphere.SetResourceName("Sphere");
+        EntityActorType sphere = new EntityActorType("Sphere", false);
         ActorTypes.Add("Sphere", sphere);
+
+        TileType tileType = new TileType("BasicTile");
+        ActorTypes.Add("BasicTile", tileType);
     }
 
     private Vector3 CalculateLocalPosition(ActorObject actor)
@@ -59,19 +63,25 @@ public class ActorManager
         return actor;
     }
 
-    public void AddActorToTile(ActorObject actor, TileObject tile)
+    public void AddActorToTile(ActorObject actor, ActorObject tile)
     {
-        int posX = tile.GridPosition.x;
-        int posY = tile.GridPosition.y;
-        if (ActorsGrid[tile.GridPosition.x, tile.GridPosition.y] == null)
+        TileType tileType = tile.ActorType as TileType;
+        if (tileType != null)
         {
-            actor.transform.SetParent(actorsLayer);
-            actor.SetGamePosition(tile.GridPosition);
-            actor.transform.localScale = Vector3.one;
-            actor.transform.localPosition = CalculateLocalPosition(actor);
-            ActorsGrid[tile.GridPosition.x, tile.GridPosition.y] = actor;
+            int posX = tile.GamePosition.x;
+            int posY = tile.GamePosition.y;
+            if (ActorsGrid[tile.GamePosition.x, tile.GamePosition.y] == null)
+            {
+                actor.transform.SetParent(actorsLayer);
+                actor.SetGamePosition(tile.GamePosition);
+                actor.transform.localScale = Vector3.one;
+                actor.transform.localPosition = CalculateLocalPosition(actor);
+                ActorsGrid[tile.GamePosition.x, tile.GamePosition.y] = actor;
+            }
         }
     }
+
+
 
     public ActorObject GetActor(Vector2Int position)
     {

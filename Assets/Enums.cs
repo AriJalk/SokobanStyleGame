@@ -19,3 +19,10 @@ public enum GameActions
 
     Null,
 }
+
+public enum GameColors
+{
+    Red,
+    Green,
+    Blue,
+}

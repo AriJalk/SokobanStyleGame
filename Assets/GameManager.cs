@@ -40,29 +40,29 @@ public class GameManager : MonoBehaviour
         PrefabManager = new PrefabManager(UnactiveObjects);
         PrefabManager.LoadAndRegisterGameObject("Cube", GRID_SIZE * GRID_SIZE);
         PrefabManager.LoadAndRegisterGameObject("Player", 5);
-        PrefabManager.LoadAndRegisterGameObject("Tile", GRID_SIZE * GRID_SIZE);
+        PrefabManager.LoadAndRegisterGameObject("BasicTile", GRID_SIZE * GRID_SIZE);
         PrefabManager.LoadAndRegisterGameObject("Sphere", 10);
         PrefabManager.LoadAndRegisterGameObject("Border", 100);
 
-        tileType = new TileType("Basic");
-        MapManager = new MapManager();
-        MapManager.SetMap(GRID_SIZE, GRID_SIZE);
-        ActorManager = new ActorManager(this);
 
+
+        ActorManager = new ActorManager(this);
+        MapManager = new MapManager(this);
 
         for (int i = 0; i < GRID_SIZE; i++)
         {
             for (int j = 0; j < GRID_SIZE; j++)
             {
-                TileObject tileObject = PrefabManager.RetrievePoolObject("Tile").GetComponent<TileObject>();
-                tileObject.transform.SetParent(MapLayerTransform);
-                tileObject.GridPosition = new Vector2Int(i, j);
-                tileObject.TileType = tileType;
-                tileObject.transform.localScale = Vector3.one;
-                tileObject.transform.localPosition = new Vector3(i + i * OFFSET, 0, j + j * OFFSET);
-                MapManager.MapGrid[i, j] = tileObject;
+                MapManager.AddTileToMap(new Vector2Int(i, j), "BasicTile");
             }
-        }
+        }  
+
+        //TODO: naming auto in class
+        ActorManager.ActorTypes["Cube"].SetResourceName("Cube");
+        //TODO: naming auto in class
+        ActorManager.ActorTypes["Sphere"].SetResourceName("Sphere");
+
+
         ActorObject player = ActorManager.CreateNewActor(ActorManager.ActorTypes["Player"]);
         ActorManager.AddActorToTile(player, MapManager.MapGrid[4, 4]);
         this.player = player;
@@ -70,17 +70,19 @@ public class GameManager : MonoBehaviour
         ActorObject cube = ActorManager.CreateNewActor(ActorManager.ActorTypes["Cube"]);
         ActorManager.AddActorToTile(cube, MapManager.MapGrid[2, 2]);
 
+
+
         cube = ActorManager.CreateNewActor(ActorManager.ActorTypes["Cube"]);
         ActorManager.AddActorToTile(cube, MapManager.MapGrid[3, 3]);
 
         ActorObject sphere = ActorManager.CreateNewActor(ActorManager.ActorTypes["Sphere"]);
         ActorManager.AddActorToTile(sphere, MapManager.MapGrid[1, 1]);
 
-        CreateBorder(MapManager.MapGrid[0, 0], MapManager.MapGrid[1, 0]);
-        CreateBorder(MapManager.MapGrid[0, 0], MapManager.MapGrid[0, 1]);
+        MapManager.CreateBorder(MapManager.MapGrid[0, 0], MapManager.MapGrid[1, 0]);
+        MapManager.CreateBorder(MapManager.MapGrid[0, 0], MapManager.MapGrid[0, 1]);
 
-        CreateBorder(MapManager.MapGrid[2, 2], MapManager.MapGrid[2, 3]);
-        CreateBorder(MapManager.MapGrid[2, 2], MapManager.MapGrid[2, 1]);
+        MapManager.CreateBorder(MapManager.MapGrid[2, 2], MapManager.MapGrid[2, 3]);
+        MapManager.CreateBorder(MapManager.MapGrid[2, 2], MapManager.MapGrid[2, 1]);
     }
 
     private void Update()
@@ -94,18 +96,7 @@ public class GameManager : MonoBehaviour
         gameInputManager.ActionTriggeredEvent.RemoveListener(CreateCommand);
     }
 
-    private void CreateBorder(TileObject tileA, TileObject tileB)
-    {
-        BorderStruct pair = new BorderStruct(tileA, tileB);
-        if (pair.IsBorderValid())
-        {
-            BorderObject border = PrefabManager.RetrievePoolObject("Border").GetComponent<BorderObject>();
-            border.Initialize(pair, this);
-            MapManager.Borders.Add(pair, border);
-            //pair = new BorderStruct(tileB, tileA);
-            //MapManager.Borders.Add(pair, border);
-        }
-    }
+
 
     private void CreateMoveCommand(ActorObject actor, GameDirection direction)
     {

@@ -3,17 +3,17 @@ using UnityEngine;
 
 public struct BorderStruct
 {
-    public TileObject TileA;
-    public TileObject TileB;
+    public ActorObject TileA;
+    public ActorObject TileB;
 
-    public BorderStruct(TileObject tileA, TileObject tileB)
+    public BorderStruct(ActorObject tileA, ActorObject tileB)
     {
         this.TileA = tileA;
         this.TileB = tileB;
     }
     public bool IsBorderValid()
     {
-        Vector2Int difference = TileA.GridPosition - TileB.GridPosition;
+        Vector2Int difference = TileA.GamePosition - TileB.GamePosition;
         if ((difference.x > 1 && difference.y > 1) || TileA == TileB)
         {
             return false;
