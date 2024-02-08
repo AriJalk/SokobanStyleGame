@@ -32,7 +32,10 @@ public enum ActorTypeEnum
     BasicTile,
     Border,
     Cube,
+    CubeRed,
+    CubeBlue,
     GoalTile,
+    GoalTileRed,
     Player,
     Sphere,
 }

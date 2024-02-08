@@ -18,6 +18,16 @@ public class GameManager : MonoBehaviour
 
     private Stack<TurnCommands> commandStack;
 
+    private char[,] initialMap = {
+        { 'b', 'R', 'b', 'b', 'b' },
+        { 'b', 's', 'b', 'b', 'b' },
+        { 'b', 'b', 'r', 'b', 'b' },
+        { 'b', 'b', 'b', 't', 'b' },
+        { 'b', 'B', 'b', 'b', 'p' },
+    };
+
+    private List<ActorObject> goalTiles;
+
 
     public PrefabManager PrefabManager { get; private set; }
     public ActorManager ActorManager { get; private set; }
@@ -43,35 +53,59 @@ public class GameManager : MonoBehaviour
         PrefabManager.LoadAndRegisterGameObject(ActorTypeEnum.BasicTile, GRID_SIZE * GRID_SIZE);
         PrefabManager.LoadAndRegisterGameObject(ActorTypeEnum.Sphere, 10);
         PrefabManager.LoadAndRegisterGameObject(ActorTypeEnum.Border, 100);
+        PrefabManager.LoadAndRegisterGameObject(ActorTypeEnum.GoalTile, 5);
 
 
 
         ActorManager = new ActorManager(this);
         MapManager = new MapManager(this);
 
+        goalTiles = new List<ActorObject>();
+
         for (int i = 0; i < GRID_SIZE; i++)
         {
             for (int j = 0; j < GRID_SIZE; j++)
             {
-                MapManager.AddTileToMap(new Vector2Int(i, j), ActorTypeEnum.BasicTile);
+                Debug.Log("Build " + i.ToString() + "," + j.ToString());
+
+                switch (initialMap[i, j])
+                {
+                    case 'r':
+                        MapManager.AddTileToMap(new Vector2Int(i, j), ActorTypeEnum.BasicTile);
+                        ActorObject redCube = ActorManager.CreateNewCube(Color.red);
+                        ActorManager.AddActorToTile(redCube, MapManager.MapGrid[i, j]);
+                        break;
+                    case 't':
+                        MapManager.AddTileToMap(new Vector2Int(i, j), ActorTypeEnum.BasicTile);
+                        ActorObject blueCube = ActorManager.CreateNewCube(Color.blue);
+                        ActorManager.AddActorToTile(blueCube, MapManager.MapGrid[i, j]);
+                        break;
+                    case 's':
+                        MapManager.AddTileToMap(new Vector2Int(i, j), ActorTypeEnum.BasicTile);
+                        ActorObject sphere = ActorManager.CreateNewActor(ActorManager.ActorTypes[ActorTypeEnum.Sphere]);
+                        ActorManager.AddActorToTile(sphere, MapManager.MapGrid[i, j]);
+                        break;
+                    case 'p':
+                        MapManager.AddTileToMap(new Vector2Int(i, j), ActorTypeEnum.BasicTile);
+                        ActorObject player = ActorManager.CreateNewActor(ActorManager.ActorTypes[ActorTypeEnum.Player]);
+                        ActorManager.AddActorToTile(player, MapManager.MapGrid[i, j]);
+                        this.player = player;
+                        break;
+                    case 'R':
+                        goalTiles.Add(MapManager.AddGoalTileToMap(new Vector2Int(i, j), Color.red));
+
+                        break;
+                    case 'B':
+                        goalTiles.Add(MapManager.AddGoalTileToMap(new Vector2Int(i, j), Color.blue));
+                        break;
+                    default:
+                        MapManager.AddTileToMap(new Vector2Int(i, j), ActorTypeEnum.BasicTile);
+                        break;
+                }
+
             }
-        }  
+        }
 
-
-        ActorObject player = ActorManager.CreateNewActor(ActorManager.ActorTypes[ActorTypeEnum.Player]);
-        ActorManager.AddActorToTile(player, MapManager.MapGrid[4, 4]);
-        this.player = player;
-
-        ActorObject cube = ActorManager.CreateNewActor(ActorManager.ActorTypes[ActorTypeEnum.Cube]);
-        ActorManager.AddActorToTile(cube, MapManager.MapGrid[2, 2]);
-
-
-
-        cube = ActorManager.CreateNewActor(ActorManager.ActorTypes[ActorTypeEnum.Cube]);
-        ActorManager.AddActorToTile(cube, MapManager.MapGrid[3, 3]);
-
-        ActorObject sphere = ActorManager.CreateNewActor(ActorManager.ActorTypes[ActorTypeEnum.Sphere]);
-        ActorManager.AddActorToTile(sphere, MapManager.MapGrid[1, 1]);
 
         MapManager.CreateBorder(MapManager.MapGrid[0, 0], MapManager.MapGrid[1, 0]);
         MapManager.CreateBorder(MapManager.MapGrid[0, 0], MapManager.MapGrid[0, 1]);
@@ -102,9 +136,39 @@ public class GameManager : MonoBehaviour
         //Discard empty command container if no action can be performed
         if (turn.Commands.Count > 0)
             commandStack.Push(turn);
+        CheckWinCondition();
     }
 
 
+    private void CheckWinCondition()
+    {
+        bool result = true;
+        foreach (ActorObject goal in goalTiles)
+        {
+            if(goal.ActorType is GoalTileType goalType)
+            {
+                ActorObject actor = ActorManager.GetActor(goal.GamePosition);
+                if (actor == null)
+                {
+                    result = false;
+                    break;
+                }
+                result = IsColorMatching(goal, actor);
+            }
+        } 
+        Debug.Log("WIN RESULT: " + result);
+
+    }
+
+    private bool IsColorMatching(ActorObject goal, ActorObject actor)
+    {
+        if(goal.ActorType is GoalTileType goalType && actor.ActorType is CubeActorType cubeActorType)
+        {
+            if(goalType.Color == cubeActorType.Color)
+                return true;
+        }
+        return false;
+    }
 
     private void ExecuteNextStep()
     {
@@ -127,7 +191,7 @@ public class GameManager : MonoBehaviour
                 CreateMoveCommand(player, GameDirection.Up);
                 break;
             case GameActions.MoveDown:
-                CreateMoveCommand (player, GameDirection.Down);
+                CreateMoveCommand(player, GameDirection.Down);
                 break;
             case GameActions.MoveLeft:
                 CreateMoveCommand(player, GameDirection.Left);
@@ -139,7 +203,7 @@ public class GameManager : MonoBehaviour
                 UndoState();
                 break;
             case GameActions.Reset:
-                while(commandStack.Count > 0)
+                while (commandStack.Count > 0)
                 {
                     commandStack.Pop().UndoCommands();
                 }

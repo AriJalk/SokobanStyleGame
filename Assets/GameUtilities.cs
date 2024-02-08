@@ -3,6 +3,8 @@ using UnityEngine;
 
 public static class GameUtilities
 {
+    public static Color Red = new Color(0.6698113f, 0.2180046f, 0.2180046f, 1f);
+    public static Color Blue = new Color(0.2021627f, 0.3961491f, 0.5566037f, 1f);
     public static bool IsPositionInBounds (object[,] grid, Vector2Int position)
     {
         bool result = false;
@@ -35,6 +37,19 @@ public static class GameUtilities
                 return GameActions.MoveUp;
             default:
                 return GameActions.Null;
+        }
+    }
+
+    public static Color GameColorToUnityRGB(GameColors color)
+    {
+        switch (color)
+        {
+            case GameColors.Red:
+                return Red;
+            case GameColors.Blue:
+                return Blue;
+            default:
+                return Color.clear;
         }
     }
 }

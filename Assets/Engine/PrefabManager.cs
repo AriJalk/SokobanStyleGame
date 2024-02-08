@@ -95,7 +95,7 @@ public class PrefabManager
         }
 
         if (retrieval == null)
-            Debug.Log("Can't retrieve object");
+            Debug.Log("Can't retrieve object: " + type);
         retrieval.gameObject.SetActive(true);
         return retrieval;
     }

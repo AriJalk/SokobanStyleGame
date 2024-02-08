@@ -16,6 +16,7 @@ public class ActorManager
 
     public ActorObject[,] ActorsGrid {  get; private set; }
     public Dictionary<ActorTypeEnum, ActorType> ActorTypes { get; private set; }
+    public Dictionary<Color, CubeActorType> CubeColorTypes {  get; private set; }
 
 
 
@@ -27,21 +28,19 @@ public class ActorManager
         this.prefabManager = manager.PrefabManager;
         ActorsGrid = new ActorObject[grid_size, grid_size];
         ActorTypes = new Dictionary<ActorTypeEnum, ActorType>();
+        CubeColorTypes = new Dictionary<Color, CubeActorType>();
 
         PlayerType playableType = new PlayerType();
         ActorTypes.Add(playableType.TypeName, playableType);
 
-        EntityActorType cube = new EntityActorType(ActorTypeEnum.Cube, true);
-        ActorTypes.Add(cube.TypeName, cube);
+        CubeColorTypes.Add(Color.red, new CubeActorType(GameColors.Red));
+        CubeColorTypes.Add(Color.blue, new CubeActorType(GameColors.Blue));
+
         EntityActorType sphere = new EntityActorType(ActorTypeEnum.Sphere, false);
         ActorTypes.Add(sphere.TypeName, sphere);
 
-        TileType tileType = new TileType(ActorTypeEnum.BasicTile);
-        ActorTypes.Add(tileType.TypeName, tileType);
-
-        GoalTileType goalTileType = new GoalTileType(GameColors.Red);
-        ActorTypes.Add(goalTileType.TypeName, goalTileType);
     }
+
 
     private Vector3 CalculateLocalPosition(ActorObject actor)
     {
@@ -56,14 +55,44 @@ public class ActorManager
         return position;
     }
 
+    private void DetachModel(ActorObject actor)
+    {
+        while(actor.transform.childCount > 0)
+        {
+            prefabManager.ReturnPoolObject(actor.ActorType.TypeName, actor.transform.GetChild(0).gameObject);
+        }
+    }
+
+    private void AttachModel(ActorObject actor)
+    {
+        GameObject model = prefabManager.RetrievePoolObject(actor.ActorType.TypeName);
+        GameUtilities.SetParentAndResetPosition(model.transform, actor.transform);
+    }
+
     public ActorObject CreateNewActor(ActorType actorType)
     {
         ActorObject actor = new GameObject().AddComponent<ActorObject>();
         actor.SetActorType(actorType);
         actor.name = actor.ActorType.TypeName + " Object";
-        //Attach type model
-        GameObject model = prefabManager.RetrievePoolObject(actorType.TypeName);
-        GameUtilities.SetParentAndResetPosition(model.transform, actor.transform);
+        AttachModel(actor);
+        return actor;
+    }
+    public ActorObject CreateNewCube(Color color)
+    {
+        ActorObject actor = new GameObject().AddComponent<ActorObject>();
+        actor.SetActorType(CubeColorTypes[color]);
+        actor.name = actor.ActorType.TypeName + " Object";
+        AttachModel(actor);
+        CubeColorTypes[color].SetCubeColor(actor);
+        return actor;
+    }
+
+    public ActorObject CreateNewActor(ActorTypeEnum actorType)
+    {
+        ActorObject actor = new GameObject().AddComponent<ActorObject>();
+        actor.SetActorType(ActorTypes[actorType]);
+        actor.name = actor.ActorType.TypeName + " Object";
+        AttachModel(actor);
         return actor;
     }
 
@@ -101,5 +130,12 @@ public class ActorManager
         ActorsGrid[newPosition.x, newPosition.y] = actor;
         actor.SetGamePosition(newPosition);
         actor.transform.localPosition = CalculateLocalPosition(actor);
+    }
+
+    public void ChangeActorType(ActorObject actor, ActorTypeEnum type) 
+    {
+        DetachModel(actor);
+        actor.SetActorType(ActorTypes[type]);
+        AttachModel(actor);
     }
 }
