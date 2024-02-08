@@ -10,10 +10,11 @@ public class ActorManager
 {
     private PrefabManager prefabManager;
     private Transform actorsLayer;
-    private List<ActorObject> playableActors;
+    
     private int grid_size;
     private float offset;
 
+    public List<ActorObject> PlayableActors {  get; private set; }
     public ActorObject[,] ActorsGrid {  get; private set; }
     public Dictionary<ActorTypeEnum, ActorType> ActorTypes { get; private set; }
     public Dictionary<Color, CubeActorType> CubeColorTypes {  get; private set; }
@@ -26,6 +27,7 @@ public class ActorManager
         offset = GameManager.OFFSET;
         actorsLayer = manager.ActorLayerTransform;
         this.prefabManager = manager.PrefabManager;
+        PlayableActors = new List<ActorObject>();
         ActorsGrid = new ActorObject[grid_size, grid_size];
         ActorTypes = new Dictionary<ActorTypeEnum, ActorType>();
         CubeColorTypes = new Dictionary<Color, CubeActorType>();
@@ -36,7 +38,7 @@ public class ActorManager
         CubeColorTypes.Add(Color.red, new CubeActorType(GameColors.Red));
         CubeColorTypes.Add(Color.blue, new CubeActorType(GameColors.Blue));
 
-        EntityActorType sphere = new EntityActorType(ActorTypeEnum.Sphere, false);
+        EntityActorType sphere = new EntityActorType(ActorTypeEnum.Sphere, false, true);
         ActorTypes.Add(sphere.TypeName, sphere);
 
     }
@@ -84,15 +86,6 @@ public class ActorManager
         actor.name = actor.ActorType.TypeName + " Object";
         AttachModel(actor);
         CubeColorTypes[color].SetCubeColor(actor);
-        return actor;
-    }
-
-    public ActorObject CreateNewActor(ActorTypeEnum actorType)
-    {
-        ActorObject actor = new GameObject().AddComponent<ActorObject>();
-        actor.SetActorType(ActorTypes[actorType]);
-        actor.name = actor.ActorType.TypeName + " Object";
-        AttachModel(actor);
         return actor;
     }
 

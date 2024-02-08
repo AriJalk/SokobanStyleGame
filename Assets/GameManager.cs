@@ -1,6 +1,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
@@ -19,7 +20,7 @@ public class GameManager : MonoBehaviour
     private Stack<TurnCommands> commandStack;
 
     private char[,] initialMap = {
-        { 'b', 'R', 'b', 'b', 'b' },
+        { 'b', 'R', 'p', 'b', 'b' },
         { 'b', 's', 'b', 'b', 'b' },
         { 'b', 'b', 'r', 'b', 'b' },
         { 'b', 'b', 'b', 't', 'b' },
@@ -89,7 +90,7 @@ public class GameManager : MonoBehaviour
                         MapManager.AddTileToMap(new Vector2Int(i, j), ActorTypeEnum.BasicTile);
                         ActorObject player = ActorManager.CreateNewActor(ActorManager.ActorTypes[ActorTypeEnum.Player]);
                         ActorManager.AddActorToTile(player, MapManager.MapGrid[i, j]);
-                        this.player = player;
+                        ActorManager.PlayableActors.Add(player);
                         break;
                     case 'R':
                         goalTiles.Add(MapManager.AddGoalTileToMap(new Vector2Int(i, j), Color.red));
@@ -139,6 +140,21 @@ public class GameManager : MonoBehaviour
         CheckWinCondition();
     }
 
+    private void CreateMoveCommandForAllPlayers(GameDirection direction)
+    {
+        TurnCommands turn = new TurnCommands();
+        foreach(ActorObject player in ActorManager.PlayableActors)
+        {
+            ActorMoveCommand command = new ActorMoveCommand(player, direction, MapManager, ActorManager);
+            turn.Commands.Add(command);
+        }
+        turn.ExecuteCommands();
+        //Discard empty command container if no action can be performed
+        if (turn.Commands.Count > 0)
+            commandStack.Push(turn);
+        CheckWinCondition();
+    }
+
 
     private void CheckWinCondition()
     {
@@ -170,10 +186,6 @@ public class GameManager : MonoBehaviour
         return false;
     }
 
-    private void ExecuteNextStep()
-    {
-
-    }
     private void UndoState()
     {
         if (commandStack.Count > 0)
@@ -188,16 +200,16 @@ public class GameManager : MonoBehaviour
         switch (action)
         {
             case GameActions.MoveUp:
-                CreateMoveCommand(player, GameDirection.Up);
+                CreateMoveCommandForAllPlayers(GameDirection.Up);
                 break;
             case GameActions.MoveDown:
-                CreateMoveCommand(player, GameDirection.Down);
+                CreateMoveCommandForAllPlayers(GameDirection.Down);
                 break;
             case GameActions.MoveLeft:
-                CreateMoveCommand(player, GameDirection.Left);
+                CreateMoveCommandForAllPlayers(GameDirection.Left);
                 break;
             case GameActions.MoveRight:
-                CreateMoveCommand(player, GameDirection.Right);
+                CreateMoveCommandForAllPlayers(GameDirection.Right);
                 break;
             case GameActions.Undo:
                 UndoState();

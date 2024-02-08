@@ -25,30 +25,33 @@ public class ActorMoveCommand : IActorCommands
         Vector2Int newPosition = DirectionHelper.GetPositionInDirection(actor.GamePosition, direction);
         if (!GameUtilities.IsPositionInBounds(actorManager.ActorsGrid, newPosition))
             Result = false;
-        ActorObject tileA = mapManager.GetTile(actor.GamePosition);
-        ActorObject tileB = mapManager.GetTile(newPosition);
-        BorderStruct borderStruct = new BorderStruct(tileA, tileB);
-        if (mapManager.Borders.ContainsKey(borderStruct))
-            Result = false;
-        ActorObject otherActor = actorManager.GetActor(newPosition);
-        if (otherActor != null && Result == true)
+        if (Result == true)
         {
-            EntityActorType actorType = actor.ActorType as EntityActorType;
-            if (actorType.CanPush)
-            {
-                innerCommand = new ActorMoveCommand(otherActor, direction, mapManager, actorManager);
-                innerCommand.ExecuteCommand();
-                Result &= innerCommand.Result;
-            }
-            else
-            {
+            ActorObject tileA = mapManager.GetTile(actor.GamePosition);
+            ActorObject tileB = mapManager.GetTile(newPosition);
+            BorderStruct borderStruct = new BorderStruct(tileA, tileB);
+            if (mapManager.Borders.ContainsKey(borderStruct))
                 Result = false;
+            ActorObject otherActor = actorManager.GetActor(newPosition);
+            if (otherActor != null && otherActor != actor && Result == true)
+            {
+                EntityActorType actorType = actor.ActorType as EntityActorType;
+                EntityActorType otherActorType = otherActor.ActorType as EntityActorType;
+                if (actorType.CanPush && otherActorType.CanBePushed)
+                {
+                    innerCommand = new ActorMoveCommand(otherActor, direction, mapManager, actorManager);
+                    innerCommand.ExecuteCommand();
+                    Result = innerCommand.Result;
+                }
+                else
+                {
+                    Result = false;
+                }
             }
         }
 
         if (Result == false)
         {
-            direction = GameDirection.Neutral;
             innerCommand = null;
             return;
         }
@@ -59,11 +62,14 @@ public class ActorMoveCommand : IActorCommands
 
     public void Undo()
     {
-        GameDirection opposite = DirectionHelper.GetOppositeDirection(direction);
-        actorManager.MoveActor(actor, DirectionHelper.GetDirectionVector(opposite));
-        if (innerCommand != null)
+        if(Result == true)
         {
-            innerCommand.Undo();
+            GameDirection opposite = DirectionHelper.GetOppositeDirection(direction);
+            actorManager.MoveActor(actor, DirectionHelper.GetDirectionVector(opposite));
+            if (innerCommand != null)
+            {
+                innerCommand.Undo();
+            }
         }
     }
 }

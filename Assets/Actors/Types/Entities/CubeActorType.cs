@@ -3,7 +3,7 @@
 public class CubeActorType : EntityActorType
 {
     public GameColors Color { get; private set; }
-    public CubeActorType(GameColors color) : base(ActorTypeEnum.Cube, true)
+    public CubeActorType(GameColors color) : base(ActorTypeEnum.Cube, true, true)
     {
         Color = color;
     }

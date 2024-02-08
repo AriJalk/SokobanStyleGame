@@ -2,7 +2,7 @@
 
 public class PlayerType : EntityActorType
 {
-    public PlayerType() : base(ActorTypeEnum.Player, true)
+    public PlayerType() : base(ActorTypeEnum.Player, true, false)
     {
     }
 }
