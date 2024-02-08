@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Handles map and tile logic
+/// </summary>
 public class MapManager
 {
     private ActorManager actorManager;
@@ -35,7 +38,7 @@ public class MapManager
         return null;
     }
 
-    public void AddTileToMap(Vector2Int position, string type)
+    public void AddTileToMap(Vector2Int position, ActorTypeEnum type)
     {
         if (MapGrid[position.x, position.y] == null)
         {
@@ -61,7 +64,7 @@ public class MapManager
             border.Initialize(borderStruct);
             Borders.Add(borderStruct, border);
             //Attach type model
-            GameObject model = prefabManager.RetrievePoolObject("Border");
+            GameObject model = prefabManager.RetrievePoolObject(ActorTypeEnum.Border);
             GameUtilities.SetParentAndResetPosition(model.transform, border.transform);
 
             border.transform.SetParent(mapLayerTransform);

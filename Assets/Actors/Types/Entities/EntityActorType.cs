@@ -2,9 +2,8 @@
 {
     public bool CanPush { get; protected set; }
 
-    public EntityActorType(string name, bool canPush) 
+    public EntityActorType(ActorTypeEnum type, bool canPush) : base(type)
     {
-        Name = name;
         CanPush = canPush;
     }
 

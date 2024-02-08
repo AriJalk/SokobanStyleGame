@@ -8,6 +8,7 @@ public class GameInputManager
 
     public const float INPUT_FREQUENCY = 0.1f;
     public const float INPUT_REPEAT_DELAY = 0.2f;
+
     public const float REPEAT_ACCELERATION = 5000f;
     public const short REPEAT_LIMIT = 10;
 
@@ -26,7 +27,7 @@ public class GameInputManager
     {
         ActionTriggeredEvent = new UnityEvent<GameActions>();
         // Create all action bindings
-        // TODO: Data driven bindings
+        // TODO: Data driven bindings, Input.GetButton support
         BindingDictionary = new Dictionary<GameActions, ActionBinding>()
         {
             {GameActions.MoveUp, new ActionBinding(GameActions.MoveUp, new List<KeyCode> {KeyCode.UpArrow, KeyCode.Keypad8, KeyCode.W}) },

@@ -1,17 +1,10 @@
 ﻿public class ActorType
 {
-    public string Name { get; protected set; }
-    public string ResourceName {  get; protected set; }
+    public ActorTypeEnum TypeName { get; protected set; }
 
-    public ActorType()
+    public ActorType(ActorTypeEnum type)
     {
-
-    }
-
-    public ActorType(string name)
-    {
-        Name = name;
-        ResourceName = name;
+        TypeName = type;
     }
 
     public virtual void ExecuteNextStep()
@@ -19,13 +12,13 @@
         return;
     }
 
-    public void SetName(string name)
+    public void SetName(ActorTypeEnum type)
     {
-        Name = name;
+        TypeName = type;
     }
 
-    public void SetResourceName(string resourceName)
+    public void SetType(ActorTypeEnum type)
     {
-        ResourceName = resourceName;
+        TypeName = type;
     }
 }

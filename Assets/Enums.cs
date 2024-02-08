@@ -26,3 +26,13 @@ public enum GameColors
     Green,
     Blue,
 }
+
+public enum ActorTypeEnum
+{
+    BasicTile,
+    Border,
+    Cube,
+    GoalTile,
+    Player,
+    Sphere,
+}

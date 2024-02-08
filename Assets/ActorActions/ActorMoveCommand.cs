@@ -31,7 +31,7 @@ public class ActorMoveCommand : IActorCommands
         if (mapManager.Borders.ContainsKey(borderStruct))
             Result = false;
         ActorObject otherActor = actorManager.GetActor(newPosition);
-        if (otherActor != null)
+        if (otherActor != null && Result == true)
         {
             EntityActorType actorType = actor.ActorType as EntityActorType;
             if (actorType.CanPush)

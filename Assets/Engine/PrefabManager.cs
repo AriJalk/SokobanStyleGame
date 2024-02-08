@@ -6,8 +6,8 @@ using UnityEngine;
 public class PrefabManager
 {
     private bool isInitialized = false;
-    private readonly Dictionary<string, PrefabPool> pools;
-    private readonly Dictionary<string, GameObject> prefabDict;
+    private readonly Dictionary<ActorTypeEnum, PrefabPool> pools;
+    private readonly Dictionary<ActorTypeEnum, GameObject> prefabDict;
     private Transform unactiveObjects;
     private readonly int initialPoolSize = 100;
 
@@ -18,57 +18,57 @@ public class PrefabManager
         {
             isInitialized = true;
             this.unactiveObjects = unactiveObjects;
-            pools = new Dictionary<string, PrefabPool>();
-            prefabDict = new Dictionary<string, GameObject>();
+            pools = new Dictionary<ActorTypeEnum, PrefabPool>();
+            prefabDict = new Dictionary<ActorTypeEnum, GameObject>();
         }
     }
 
-    private bool SetQueue(string resource)
+    private bool SetQueue(ActorTypeEnum type)
     {
-        if (pools.ContainsKey(resource))
+        if (pools.ContainsKey(type))
             return false;
 
         PrefabPool newPool = new PrefabPool();
-        pools.Add(resource, newPool);
+        pools.Add(type, newPool);
 
         return true;
     }
 
-    private GameObject CreatePrefabInstance(string resource)
+    private GameObject CreatePrefabInstance(ActorTypeEnum type)
     {
         GameObject prefab;
-        if (prefabDict.TryGetValue(resource, out prefab))
+        if (prefabDict.TryGetValue(type, out prefab))
         {
             return GameObject.Instantiate(prefab);
         }
         else
         {
-            Debug.Log("Prefab not registered for type: " + resource);
+            Debug.Log("Prefab not registered for type: " + type);
             return null;
         }
     }
 
 
-    public void RegisterPrefab(string resourceName, GameObject prefab)
+    public void RegisterPrefab(ActorTypeEnum type, GameObject prefab)
     {
 
-        RegisterPrefab(resourceName, prefab, initialPoolSize);
+        RegisterPrefab(type, prefab, initialPoolSize);
     }
 
-    public void RegisterPrefab(string resourceName, GameObject prefab, int poolSize)
+    public void RegisterPrefab(ActorTypeEnum type, GameObject prefab, int poolSize)
     {
 
-        if (!prefabDict.ContainsKey(resourceName))
+        if (!prefabDict.ContainsKey(type))
         {
-            prefabDict.Add(resourceName, prefab);
+            prefabDict.Add(type, prefab);
 
-            if (!pools.ContainsKey(resourceName))
+            if (!pools.ContainsKey(type))
             {
-                SetQueue(resourceName);
-                PrefabPool prefabPool = pools[resourceName];
+                SetQueue(type);
+                PrefabPool prefabPool = pools[type];
                 for (int i = 0; i < poolSize; i++)
                 {
-                    GameObject obj = CreatePrefabInstance(resourceName);
+                    GameObject obj = CreatePrefabInstance(type);
                     obj.gameObject.SetActive(false);
                     obj.gameObject.transform.SetParent(unactiveObjects);
                     prefabPool.AddQueueObject(obj);
@@ -77,21 +77,21 @@ public class PrefabManager
         }
         else
         {
-            prefabDict[resourceName] = prefab;
+            prefabDict[type] = prefab;
         }
     }
 
-    public GameObject RetrievePoolObject(string resourceName)
+    public GameObject RetrievePoolObject(ActorTypeEnum type)
     {
-        if (!pools.ContainsKey(resourceName))
-            SetQueue(resourceName);
+        if (!pools.ContainsKey(type))
+            SetQueue(type);
 
-        PrefabPool prefabPool = pools[resourceName];
+        PrefabPool prefabPool = pools[type];
         GameObject retrieval = prefabPool.RetrieveQueueObject();
 
         if (retrieval == null)
         {
-            retrieval = CreatePrefabInstance(resourceName);
+            retrieval = CreatePrefabInstance(type);
         }
 
         if (retrieval == null)
@@ -100,27 +100,27 @@ public class PrefabManager
         return retrieval;
     }
 
-    public void ReturnPoolObject(string resourceName, GameObject obj)
+    public void ReturnPoolObject(ActorTypeEnum type, GameObject obj)
     {
-        if (pools.ContainsKey(resourceName))
+        if (pools.ContainsKey(type))
         {
-            PrefabPool prefabPool = pools[resourceName];
+            PrefabPool prefabPool = pools[type];
             prefabPool.AddQueueObject(obj);
             obj.gameObject.transform.SetParent(unactiveObjects);
             obj.gameObject.SetActive(false);
         }
         else
         {
-            Debug.Log("Pool not found for type: " + resourceName);
+            Debug.Log("Pool not found for type: " + type);
         }
     }
 
-    public void LoadAndRegisterGameObject(string resourceName, int amount)
+    public void LoadAndRegisterGameObject(ActorTypeEnum type, int amount)
     {
-        GameObject prefab = Resources.Load<GameObject>(resourceName);
+        GameObject prefab = Resources.Load<GameObject>(type.ToString());
         if(prefab != null)
         {
-            RegisterPrefab(resourceName, prefab);
+            RegisterPrefab(type, prefab);
         }
     }
 }

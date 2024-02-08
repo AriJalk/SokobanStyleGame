@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Timeline;
 
+
 public class ActorManager
 {
     private PrefabManager prefabManager;
@@ -14,7 +15,7 @@ public class ActorManager
     private float offset;
 
     public ActorObject[,] ActorsGrid {  get; private set; }
-    public Dictionary<string, ActorType> ActorTypes { get; private set; }
+    public Dictionary<ActorTypeEnum, ActorType> ActorTypes { get; private set; }
 
 
 
@@ -25,18 +26,21 @@ public class ActorManager
         actorsLayer = manager.ActorLayerTransform;
         this.prefabManager = manager.PrefabManager;
         ActorsGrid = new ActorObject[grid_size, grid_size];
-        ActorTypes = new Dictionary<string, ActorType>();
+        ActorTypes = new Dictionary<ActorTypeEnum, ActorType>();
 
-        PlayableActorType playableType = new PlayableActorType();
-        ActorTypes.Add("Player", playableType);
+        PlayerType playableType = new PlayerType();
+        ActorTypes.Add(playableType.TypeName, playableType);
 
-        EntityActorType cube = new EntityActorType("Cube", true);
-        ActorTypes.Add("Cube", cube);
-        EntityActorType sphere = new EntityActorType("Sphere", false);
-        ActorTypes.Add("Sphere", sphere);
+        EntityActorType cube = new EntityActorType(ActorTypeEnum.Cube, true);
+        ActorTypes.Add(cube.TypeName, cube);
+        EntityActorType sphere = new EntityActorType(ActorTypeEnum.Sphere, false);
+        ActorTypes.Add(sphere.TypeName, sphere);
 
-        TileType tileType = new TileType("BasicTile");
-        ActorTypes.Add("BasicTile", tileType);
+        TileType tileType = new TileType(ActorTypeEnum.BasicTile);
+        ActorTypes.Add(tileType.TypeName, tileType);
+
+        GoalTileType goalTileType = new GoalTileType(GameColors.Red);
+        ActorTypes.Add(goalTileType.TypeName, goalTileType);
     }
 
     private Vector3 CalculateLocalPosition(ActorObject actor)
@@ -56,9 +60,9 @@ public class ActorManager
     {
         ActorObject actor = new GameObject().AddComponent<ActorObject>();
         actor.SetActorType(actorType);
-        actor.name = actor.ActorType.Name + " Object";
+        actor.name = actor.ActorType.TypeName + " Object";
         //Attach type model
-        GameObject model = prefabManager.RetrievePoolObject(actorType.ResourceName);
+        GameObject model = prefabManager.RetrievePoolObject(actorType.TypeName);
         GameUtilities.SetParentAndResetPosition(model.transform, actor.transform);
         return actor;
     }

@@ -38,11 +38,11 @@ public class GameManager : MonoBehaviour
         commandStack = new Stack<TurnCommands>();
 
         PrefabManager = new PrefabManager(UnactiveObjects);
-        PrefabManager.LoadAndRegisterGameObject("Cube", GRID_SIZE * GRID_SIZE);
-        PrefabManager.LoadAndRegisterGameObject("Player", 5);
-        PrefabManager.LoadAndRegisterGameObject("BasicTile", GRID_SIZE * GRID_SIZE);
-        PrefabManager.LoadAndRegisterGameObject("Sphere", 10);
-        PrefabManager.LoadAndRegisterGameObject("Border", 100);
+        PrefabManager.LoadAndRegisterGameObject(ActorTypeEnum.Cube, GRID_SIZE * GRID_SIZE);
+        PrefabManager.LoadAndRegisterGameObject(ActorTypeEnum.Player, 5);
+        PrefabManager.LoadAndRegisterGameObject(ActorTypeEnum.BasicTile, GRID_SIZE * GRID_SIZE);
+        PrefabManager.LoadAndRegisterGameObject(ActorTypeEnum.Sphere, 10);
+        PrefabManager.LoadAndRegisterGameObject(ActorTypeEnum.Border, 100);
 
 
 
@@ -53,29 +53,24 @@ public class GameManager : MonoBehaviour
         {
             for (int j = 0; j < GRID_SIZE; j++)
             {
-                MapManager.AddTileToMap(new Vector2Int(i, j), "BasicTile");
+                MapManager.AddTileToMap(new Vector2Int(i, j), ActorTypeEnum.BasicTile);
             }
         }  
 
-        //TODO: naming auto in class
-        ActorManager.ActorTypes["Cube"].SetResourceName("Cube");
-        //TODO: naming auto in class
-        ActorManager.ActorTypes["Sphere"].SetResourceName("Sphere");
 
-
-        ActorObject player = ActorManager.CreateNewActor(ActorManager.ActorTypes["Player"]);
+        ActorObject player = ActorManager.CreateNewActor(ActorManager.ActorTypes[ActorTypeEnum.Player]);
         ActorManager.AddActorToTile(player, MapManager.MapGrid[4, 4]);
         this.player = player;
 
-        ActorObject cube = ActorManager.CreateNewActor(ActorManager.ActorTypes["Cube"]);
+        ActorObject cube = ActorManager.CreateNewActor(ActorManager.ActorTypes[ActorTypeEnum.Cube]);
         ActorManager.AddActorToTile(cube, MapManager.MapGrid[2, 2]);
 
 
 
-        cube = ActorManager.CreateNewActor(ActorManager.ActorTypes["Cube"]);
+        cube = ActorManager.CreateNewActor(ActorManager.ActorTypes[ActorTypeEnum.Cube]);
         ActorManager.AddActorToTile(cube, MapManager.MapGrid[3, 3]);
 
-        ActorObject sphere = ActorManager.CreateNewActor(ActorManager.ActorTypes["Sphere"]);
+        ActorObject sphere = ActorManager.CreateNewActor(ActorManager.ActorTypes[ActorTypeEnum.Sphere]);
         ActorManager.AddActorToTile(sphere, MapManager.MapGrid[1, 1]);
 
         MapManager.CreateBorder(MapManager.MapGrid[0, 0], MapManager.MapGrid[1, 0]);

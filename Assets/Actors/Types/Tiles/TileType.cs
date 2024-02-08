@@ -1,8 +1,7 @@
 ﻿public class TileType : ActorType
 {
-    public TileType() : base()
+    public TileType(ActorTypeEnum type) : base(type)
     {
 
     }
-    public TileType(string name) : base(name) { }
 }
