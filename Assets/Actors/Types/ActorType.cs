@@ -1,10 +1,14 @@
-﻿public class ActorType
+﻿using System.Collections.Generic;
+
+public class ActorType
 {
     public ActorTypeEnum TypeName { get; protected set; }
+    public List<ActorObject> ActorObjectList { get; protected set; }
 
     public ActorType(ActorTypeEnum type)
     {
         TypeName = type;
+        ActorObjectList = new List<ActorObject>();
     }
 
     public virtual void ExecuteNextStep()

@@ -38,6 +38,8 @@ public class ActorManager
         CubeColorTypes.Add(Color.red, new CubeActorType(GameColors.Red));
         CubeColorTypes.Add(Color.blue, new CubeActorType(GameColors.Blue));
 
+        EntityActorType.SetLinkedTypes(CubeColorTypes[Color.red], CubeColorTypes[Color.blue]);
+
         EntityActorType sphere = new EntityActorType(ActorTypeEnum.Sphere, false, true);
         ActorTypes.Add(sphere.TypeName, sphere);
 
@@ -77,17 +79,17 @@ public class ActorManager
         actor.SetActorType(actorType);
         actor.name = actor.ActorType.TypeName + " Object";
         AttachModel(actor);
+        actorType.ActorObjectList.Add(actor);
         return actor;
     }
+
     public ActorObject CreateNewCube(Color color)
     {
-        ActorObject actor = new GameObject().AddComponent<ActorObject>();
-        actor.SetActorType(CubeColorTypes[color]);
-        actor.name = actor.ActorType.TypeName + " Object";
-        AttachModel(actor);
+        ActorObject actor = CreateNewActor(CubeColorTypes[color]);
         CubeColorTypes[color].SetCubeColor(actor);
         return actor;
     }
+
 
     public void AddActorToTile(ActorObject actor, ActorObject tile)
     {
@@ -108,7 +110,14 @@ public class ActorManager
     }
 
 
-
+    public T GetActorType<T>(ActorObject actor) where T : ActorType
+    {
+        if(actor.ActorType is T type)
+        {
+            return type as T;
+        }
+        return null;
+    }
     public ActorObject GetActor(Vector2Int position)
     {
         if (GameUtilities.IsPositionInBounds(ActorsGrid, position))

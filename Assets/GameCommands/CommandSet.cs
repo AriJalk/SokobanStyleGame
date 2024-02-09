@@ -67,4 +67,18 @@ public struct CommandSet
         }
         return false;
     }
+
+    public List<ActorObject> GetPushedActorObjects()
+    {
+        List<ActorObject> pushedObjects = new List<ActorObject>();
+        foreach(ActorMoveCommand command in commands)
+        {
+            if(command != null)
+            {
+                if(command.PushedActor != null)
+                    pushedObjects.Add(command.PushedActor);
+            }
+        }
+        return pushedObjects;
+    }
 }

@@ -13,6 +13,7 @@ public class ActorMoveCommand : IActorCommands
 
 
     public bool Result { get; private set; }
+    public ActorObject PushedActor { get; private set; }
 
     public ActorMoveCommand(ActorObject actor, GameDirection direction, MapManager mapManager, ActorManager actorManager)
     {
@@ -40,14 +41,18 @@ public class ActorMoveCommand : IActorCommands
                 EntityActorType actorType = actor.ActorType as EntityActorType;
                 EntityActorType otherActorType = otherActor.ActorType as EntityActorType;
                 Result = actorType.CanPush & otherActorType.CanBePushed;
-                if(Result == true)
+                if (Result == true)
                 {
                     innerCommand = new ActorMoveCommand(otherActor, direction, mapManager, actorManager);
                     innerCommand.Evaluate();
-                    if(innerCommand.Result == false)
+                    if (innerCommand.Result == false)
                     {
                         Result = false;
                         innerCommand = null;
+                    }
+                    else
+                    {
+                        PushedActor = otherActor;
                     }
                 }
             }
@@ -55,19 +60,19 @@ public class ActorMoveCommand : IActorCommands
     }
     public void ExecuteCommand()
     {
-        if(Result == true)
+        if (Result == true)
         {
-            if(innerCommand != null && innerCommand.Result == true)
+            if (innerCommand != null && innerCommand.Result == true)
                 innerCommand.ExecuteCommand();
 
             actorManager.MoveActor(actor, DirectionHelper.GetDirectionVector(direction));
-            
+
         }
     }
 
     public void Undo()
     {
-        if(Result == true)
+        if (Result == true)
         {
             GameDirection opposite = DirectionHelper.GetOppositeDirection(direction);
             actorManager.MoveActor(actor, DirectionHelper.GetDirectionVector(opposite));

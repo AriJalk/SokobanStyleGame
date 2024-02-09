@@ -149,10 +149,12 @@ public class GameManager : MonoBehaviour
         List<IActorCommands> commandList = new List<IActorCommands>();
         GameTurn turn = new GameTurn();
 
+
+
         //Move all regular players
-        foreach(ActorObject player in ActorManager.PlayableActors)
+        foreach (ActorObject player in ActorManager.PlayableActors)
         {
-            if(player != null)
+            if (player != null)
             {
                 ActorMoveCommand command = new ActorMoveCommand(player, direction, MapManager, ActorManager);
                 commandList.Add(command);
@@ -162,6 +164,37 @@ public class GameManager : MonoBehaviour
         CommandSet playerSet = new CommandSet(commandList);
         playerSet.ExecuteSet();
         commandSets.Add(playerSet);
+
+        // Add commands to objects linked to type
+        List<ActorObject> pushedActors = playerSet.GetPushedActorObjects();
+        List<EntityActorType> pushedTypes = new List<EntityActorType>();
+        foreach (ActorObject pushedActor in pushedActors)
+        {
+            if (pushedActor != null)
+            {
+                if (!pushedTypes.Contains(pushedActor.ActorType as EntityActorType))
+                {
+                    pushedTypes.Add(pushedActor.ActorType as EntityActorType);
+                }
+            }
+        }
+        commandList = new List<IActorCommands>();
+        foreach (EntityActorType pushedType in pushedTypes)
+        {
+            GameDirection linkDirection = pushedType.GetLinkedDirection(direction);
+            if (pushedType.LinkedActorType != null)
+            {
+                foreach (ActorObject actor in pushedType.LinkedActorType.ActorObjectList)
+                {
+                    ActorMoveCommand command = new ActorMoveCommand(actor, linkDirection, MapManager, ActorManager);
+                    commandList.Add(command);
+                }
+            }
+        }
+        //Add commands to set and execute
+        CommandSet linkedSet = new CommandSet(commandList);
+        linkedSet.ExecuteSet();
+        commandSets.Add(linkedSet);
 
 
         turn.CommandSets = commandSets;
@@ -176,7 +209,7 @@ public class GameManager : MonoBehaviour
         bool result = true;
         foreach (ActorObject goal in goalTiles)
         {
-            if(goal.ActorType is GoalTileType goalType)
+            if (goal.ActorType is GoalTileType goalType)
             {
                 ActorObject actor = ActorManager.GetActor(goal.GamePosition);
                 if (actor == null)
@@ -186,16 +219,16 @@ public class GameManager : MonoBehaviour
                 }
                 result = IsColorMatching(goal, actor);
             }
-        } 
+        }
         Debug.Log("WIN RESULT: " + result);
 
     }
 
     private bool IsColorMatching(ActorObject goal, ActorObject actor)
     {
-        if(goal.ActorType is GoalTileType goalType && actor.ActorType is CubeActorType cubeActorType)
+        if (goal.ActorType is GoalTileType goalType && actor.ActorType is CubeActorType cubeActorType)
         {
-            if(goalType.Color == cubeActorType.Color)
+            if (goalType.Color == cubeActorType.Color)
                 return true;
         }
         return false;

@@ -13,4 +13,10 @@ public class CubeActorType : EntityActorType
         MeshRenderer meshRenderer = actor.transform.GetChild(0).Find("Model").GetComponent<MeshRenderer>();
         meshRenderer.material = Resources.Load<Material>(Color + "Material");
     }
+
+    public override GameDirection GetLinkedDirection(GameDirection originDirection)
+    {
+        //return base.GetLinkedDirection(originDirection);
+        return DirectionHelper.GetOppositeDirection(originDirection);
+    }
 }
