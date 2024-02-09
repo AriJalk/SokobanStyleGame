@@ -17,7 +17,7 @@ public class GameManager : MonoBehaviour
 
     private GameInputManager gameInputManager;
 
-    private Stack<TurnCommands> commandStack;
+    private Stack<GameTurn> turnStack;
 
     private char[,] initialMap = {
         { 'b', 'R', 'p', 'b', 'b' },
@@ -46,7 +46,7 @@ public class GameManager : MonoBehaviour
         gameInputManager = new GameInputManager();
         gameInputManager.ActionTriggeredEvent.AddListener(CreateCommand);
 
-        commandStack = new Stack<TurnCommands>();
+        turnStack = new Stack<GameTurn>();
 
         PrefabManager = new PrefabManager(UnactiveObjects);
         PrefabManager.LoadAndRegisterGameObject(ActorTypeEnum.Cube, GRID_SIZE * GRID_SIZE);
@@ -128,30 +128,45 @@ public class GameManager : MonoBehaviour
 
 
 
-    private void CreateMoveCommand(ActorObject actor, GameDirection direction)
+    /*
+     * private void CreateMoveCommand(ActorObject actor, GameDirection direction)
     {
         ActorMoveCommand command = new ActorMoveCommand(actor, direction, MapManager, ActorManager);
-        TurnCommands turn = new TurnCommands();
+        GameTurn turn = new GameTurn();
         turn.Commands.Add(command);
-        turn.ExecuteCommands();
+        turn.ExecuteAllSets();
         //Discard empty command container if no action can be performed
         if (turn.Commands.Count > 0)
-            commandStack.Push(turn);
+            turnStack.Push(turn);
         CheckWinCondition();
     }
+    */
 
     private void CreateMoveCommandForAllPlayers(GameDirection direction)
     {
-        TurnCommands turn = new TurnCommands();
+        List<CommandSet> commandSets = new List<CommandSet>();
+
+        List<IActorCommands> commandList = new List<IActorCommands>();
+        GameTurn turn = new GameTurn();
+
+        //Move all regular players
         foreach(ActorObject player in ActorManager.PlayableActors)
         {
-            ActorMoveCommand command = new ActorMoveCommand(player, direction, MapManager, ActorManager);
-            turn.Commands.Add(command);
+            if(player != null)
+            {
+                ActorMoveCommand command = new ActorMoveCommand(player, direction, MapManager, ActorManager);
+                commandList.Add(command);
+            }
         }
-        turn.ExecuteCommands();
-        //Discard empty command container if no action can be performed
-        if (turn.Commands.Count > 0)
-            commandStack.Push(turn);
+        // Add set to list
+        CommandSet playerSet = new CommandSet(commandList);
+        playerSet.ExecuteSet();
+        commandSets.Add(playerSet);
+
+
+        turn.CommandSets = commandSets;
+        if (turn.IsTurnProductive() == true)
+            turnStack.Push(turn);
         CheckWinCondition();
     }
 
@@ -188,10 +203,10 @@ public class GameManager : MonoBehaviour
 
     private void UndoState()
     {
-        if (commandStack.Count > 0)
+        if (turnStack.Count > 0)
         {
-            TurnCommands commands = commandStack.Pop();
-            commands.UndoCommands();
+            GameTurn commands = turnStack.Pop();
+            commands.UndoAllSets();
         }
     }
 
@@ -215,9 +230,9 @@ public class GameManager : MonoBehaviour
                 UndoState();
                 break;
             case GameActions.Reset:
-                while (commandStack.Count > 0)
+                while (turnStack.Count > 0)
                 {
-                    commandStack.Pop().UndoCommands();
+                    turnStack.Pop().UndoAllSets();
                 }
                 break;
             default:

@@ -1,25 +1,26 @@
 ﻿using System.Collections.Generic;
 
-public class TurnCommands
+public struct CommandSet
 {
-    public List<IActorCommands> Commands;
+    List<IActorCommands> commands;
 
-    public TurnCommands()
+    public CommandSet(List<IActorCommands> commands)
     {
-        Commands = new List<IActorCommands>();
+        this.commands = commands;
     }
-
-    public void ExecuteCommands()
+    public void ExecuteSet()
     {
         List<IActorCommands> failedCommands = new List<IActorCommands>();
-        for (int i = 0; i < Commands.Count; i++)
+        for (int i = 0; i < commands.Count; i++)
         {
-            Commands[i].ExecuteCommand();
+            commands[i].Evaluate();
+            if (commands[i].Result == true)
+                commands[i].ExecuteCommand();
             //Move failed commands to own list and discard
-            if (Commands[i].Result == false)
+            else
             {
-                failedCommands.Add(Commands[i]);
-                Commands.RemoveAt(i);
+                failedCommands.Add(commands[i]);
+                commands.RemoveAt(i);
                 i--;
             }
         }
@@ -31,11 +32,12 @@ public class TurnCommands
             // Try to execute again failed commands
             for (int i = 0; i < failedCommands.Count; i++)
             {
-                failedCommands[i].ExecuteCommand();
-                if (failedCommands[i].Result == true) 
+                failedCommands[i].Evaluate();
+                if (failedCommands[i].Result == true)
                 {
+                    failedCommands[i].ExecuteCommand();
                     isCommandSuccesful = true;
-                    Commands.Add(failedCommands[i]);
+                    commands.Add(failedCommands[i]);
                     failedCommands.RemoveAt(i);
                     // Return succesfull command to list
                     i--;
@@ -48,12 +50,21 @@ public class TurnCommands
             }
         }
     }
-
-    public void UndoCommands()
+    public void UndoSet()
     {
-        foreach (IActorCommands command in Commands)
+        foreach(IActorCommands command in commands)
         {
             command.Undo();
         }
+    }
+
+    public bool IsSetProductive()
+    {
+        foreach(IActorCommands command in commands)
+        {
+            if (command.Result == true)
+                return true;
+        }
+        return false;
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class ActorMoveCommand : IActorCommands
@@ -10,6 +11,7 @@ public class ActorMoveCommand : IActorCommands
     private GameDirection direction;
     private ActorMoveCommand innerCommand;
 
+
     public bool Result { get; private set; }
 
     public ActorMoveCommand(ActorObject actor, GameDirection direction, MapManager mapManager, ActorManager actorManager)
@@ -19,7 +21,7 @@ public class ActorMoveCommand : IActorCommands
         this.mapManager = mapManager;
         this.actorManager = actorManager;
     }
-    public void ExecuteCommand()
+    public void Evaluate()
     {
         Result = true;
         Vector2Int newPosition = DirectionHelper.GetPositionInDirection(actor.GamePosition, direction);
@@ -37,27 +39,30 @@ public class ActorMoveCommand : IActorCommands
             {
                 EntityActorType actorType = actor.ActorType as EntityActorType;
                 EntityActorType otherActorType = otherActor.ActorType as EntityActorType;
-                if (actorType.CanPush && otherActorType.CanBePushed)
+                Result = actorType.CanPush & otherActorType.CanBePushed;
+                if(Result == true)
                 {
                     innerCommand = new ActorMoveCommand(otherActor, direction, mapManager, actorManager);
-                    innerCommand.ExecuteCommand();
-                    Result = innerCommand.Result;
-                }
-                else
-                {
-                    Result = false;
+                    innerCommand.Evaluate();
+                    if(innerCommand.Result == false)
+                    {
+                        Result = false;
+                        innerCommand = null;
+                    }
                 }
             }
         }
-
-        if (Result == false)
+    }
+    public void ExecuteCommand()
+    {
+        if(Result == true)
         {
-            innerCommand = null;
-            return;
+            if(innerCommand != null && innerCommand.Result == true)
+                innerCommand.ExecuteCommand();
+
+            actorManager.MoveActor(actor, DirectionHelper.GetDirectionVector(direction));
+            
         }
-        actorManager.MoveActor(actor, DirectionHelper.GetDirectionVector(direction));
-
-
     }
 
     public void Undo()
@@ -66,10 +71,8 @@ public class ActorMoveCommand : IActorCommands
         {
             GameDirection opposite = DirectionHelper.GetOppositeDirection(direction);
             actorManager.MoveActor(actor, DirectionHelper.GetDirectionVector(opposite));
-            if (innerCommand != null)
-            {
+            if (innerCommand != null && innerCommand.Result == true)
                 innerCommand.Undo();
-            }
         }
     }
 }

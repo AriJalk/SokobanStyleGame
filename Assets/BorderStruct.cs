@@ -3,18 +3,18 @@ using UnityEngine;
 
 public struct BorderStruct
 {
-    public ActorObject TileA;
-    public ActorObject TileB;
+    public ActorObject tileA;
+    public ActorObject tileB;
 
     public BorderStruct(ActorObject tileA, ActorObject tileB)
     {
-        this.TileA = tileA;
-        this.TileB = tileB;
+        this.tileA = tileA;
+        this.tileB = tileB;
     }
     public bool IsBorderValid()
     {
-        Vector2Int difference = TileA.GamePosition - TileB.GamePosition;
-        if ((difference.x > 1 && difference.y > 1) || TileA == TileB)
+        Vector2Int difference = tileA.GamePosition - tileB.GamePosition;
+        if ((difference.x > 1 && difference.y > 1) || tileA == tileB)
         {
             return false;
         }
@@ -25,8 +25,8 @@ public struct BorderStruct
     {
         if (obj is BorderStruct other)
         {
-            if ((TileA == other.TileA && TileB == other.TileB) ||
-                (TileA == other.TileB && TileB == other.TileA))
+            if ((tileA == other.tileA && tileB == other.tileB) ||
+                (tileA == other.tileB && tileB == other.tileA))
                 return true;
         }
         return false;
