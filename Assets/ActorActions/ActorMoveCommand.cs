@@ -26,7 +26,7 @@ public class ActorMoveCommand : IActorCommands
     {
         Result = true;
         Vector2Int newPosition = DirectionHelper.GetPositionInDirection(actor.GamePosition, direction);
-        if (!GameUtilities.IsPositionInBounds(actorManager.ActorsGrid, newPosition))
+        if (!GameUtilities.IsPositionInBounds(actorManager.ActorsGrid, newPosition) || mapManager.GetTile(newPosition) == null)
             Result = false;
         if (Result == true)
         {

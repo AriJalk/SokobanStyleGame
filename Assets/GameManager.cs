@@ -9,26 +9,19 @@ using UnityEngine.Playables;
 
 public class GameManager : MonoBehaviour
 {
+    public UnityEvent SolvedEvent;
+    //TODO: change it to dynamic handling
     public const int GRID_SIZE = 5;
     public const float OFFSET = 0.02f;
-
-    private TileType tileType;
-    private ActorObject player;
 
     private GameInputManager gameInputManager;
 
     private Stack<GameTurn> turnStack;
 
-    private char[,] initialMap = {
-        { 'b', 'R', 'p', 'b', 'b' },
-        { 'b', 's', 'b', 'b', 'b' },
-        { 'b', 'b', 'r', 'b', 'b' },
-        { 'b', 'b', 'b', 't', 'b' },
-        { 'b', 'B', 'b', 'b', 'p' },
-    };
+    private List<TileObject> goalTiles;
 
-    private List<ActorObject> goalTiles;
-
+    [SerializeField]
+    private UserInterface UserInterface;
 
     public PrefabManager PrefabManager { get; private set; }
     public ActorManager ActorManager { get; private set; }
@@ -38,11 +31,13 @@ public class GameManager : MonoBehaviour
     public Transform MapLayerTransform;
     public Transform ActorLayerTransform;
     public Transform UnactiveObjects;
+    
 
 
 
     private void Awake()
     {
+        SolvedEvent = new UnityEvent();
         gameInputManager = new GameInputManager();
         gameInputManager.ActionTriggeredEvent.AddListener(CreateCommand);
 
@@ -61,58 +56,9 @@ public class GameManager : MonoBehaviour
         ActorManager = new ActorManager(this);
         MapManager = new MapManager(this);
 
-        goalTiles = new List<ActorObject>();
-
-        for (int i = 0; i < GRID_SIZE; i++)
-        {
-            for (int j = 0; j < GRID_SIZE; j++)
-            {
-                Debug.Log("Build " + i.ToString() + "," + j.ToString());
-
-                switch (initialMap[i, j])
-                {
-                    case 'r':
-                        MapManager.AddTileToMap(new Vector2Int(i, j), ActorTypeEnum.BasicTile);
-                        ActorObject redCube = ActorManager.CreateNewCube(Color.red);
-                        ActorManager.AddActorToTile(redCube, MapManager.MapGrid[i, j]);
-                        break;
-                    case 't':
-                        MapManager.AddTileToMap(new Vector2Int(i, j), ActorTypeEnum.BasicTile);
-                        ActorObject blueCube = ActorManager.CreateNewCube(Color.blue);
-                        ActorManager.AddActorToTile(blueCube, MapManager.MapGrid[i, j]);
-                        break;
-                    case 's':
-                        MapManager.AddTileToMap(new Vector2Int(i, j), ActorTypeEnum.BasicTile);
-                        ActorObject sphere = ActorManager.CreateNewActor(ActorManager.ActorTypes[ActorTypeEnum.Sphere]);
-                        ActorManager.AddActorToTile(sphere, MapManager.MapGrid[i, j]);
-                        break;
-                    case 'p':
-                        MapManager.AddTileToMap(new Vector2Int(i, j), ActorTypeEnum.BasicTile);
-                        ActorObject player = ActorManager.CreateNewActor(ActorManager.ActorTypes[ActorTypeEnum.Player]);
-                        ActorManager.AddActorToTile(player, MapManager.MapGrid[i, j]);
-                        ActorManager.PlayableActors.Add(player);
-                        break;
-                    case 'R':
-                        goalTiles.Add(MapManager.AddGoalTileToMap(new Vector2Int(i, j), Color.red));
-
-                        break;
-                    case 'B':
-                        goalTiles.Add(MapManager.AddGoalTileToMap(new Vector2Int(i, j), Color.blue));
-                        break;
-                    default:
-                        MapManager.AddTileToMap(new Vector2Int(i, j), ActorTypeEnum.BasicTile);
-                        break;
-                }
-
-            }
-        }
-
-
-        MapManager.CreateBorder(MapManager.MapGrid[0, 0], MapManager.MapGrid[1, 0]);
-        MapManager.CreateBorder(MapManager.MapGrid[0, 0], MapManager.MapGrid[0, 1]);
-
-        MapManager.CreateBorder(MapManager.MapGrid[2, 2], MapManager.MapGrid[2, 3]);
-        MapManager.CreateBorder(MapManager.MapGrid[2, 2], MapManager.MapGrid[2, 1]);
+        LevelBuilder levelBuilder = new LevelBuilder();
+        BuildLevel(levelBuilder.Levels[1]);
+        UserInterface.Initialize(SolvedEvent);
     }
 
     private void Update()
@@ -126,21 +72,62 @@ public class GameManager : MonoBehaviour
         gameInputManager.ActionTriggeredEvent.RemoveListener(CreateCommand);
     }
 
-
-
-    /*
-     * private void CreateMoveCommand(ActorObject actor, GameDirection direction)
+    private void BuildLevel(LevelStruct levelStruct)
     {
-        ActorMoveCommand command = new ActorMoveCommand(actor, direction, MapManager, ActorManager);
-        GameTurn turn = new GameTurn();
-        turn.Commands.Add(command);
-        turn.ExecuteAllSets();
-        //Discard empty command container if no action can be performed
-        if (turn.Commands.Count > 0)
-            turnStack.Push(turn);
-        CheckWinCondition();
+        goalTiles = new List<TileObject>();
+        // Build Map and Entity grid
+        for (int i = 0; i < levelStruct.TileGrid.GetLength(0); i++)
+        {
+            for (int j = 0; j < levelStruct.TileGrid.GetLength(1); j++)
+            {
+                switch (levelStruct.TileGrid[i, j])
+                {
+                    case 't':
+                        TileObject tile = MapManager.AddTileToMap(new Vector2Int(i, j), ActorTypeEnum.BasicTile);
+                        break;
+                    case 'R':
+                        goalTiles.Add(MapManager.AddGoalTileToMap(new Vector2Int(i, j), Color.red));
+                        break;
+                    case 'B':
+                        goalTiles.Add(MapManager.AddGoalTileToMap(new Vector2Int(i, j), Color.blue));
+                        break;
+                    case 'x':
+                    default:
+                        break;
+                }
+                switch (levelStruct.EntityGrid[i, j])
+                {
+                    case 'p':
+                        ActorObject player = ActorManager.CreateNewActor<ActorObject>(ActorManager.ActorTypes[ActorTypeEnum.Player]);
+                        ActorManager.AddActorToTile(player, MapManager.MapGrid[i, j]);
+                        ActorManager.PlayableActors.Add(player);
+                        break;
+                    case 'b':
+                        ActorObject blueCube = ActorManager.CreateNewCube(Color.blue);
+                        ActorManager.AddActorToTile(blueCube, MapManager.MapGrid[i, j]);
+                        break;
+                    case 'r':
+                        ActorObject redCube = ActorManager.CreateNewCube(Color.red);
+                        ActorManager.AddActorToTile(redCube, MapManager.MapGrid[i, j]);
+                        break;
+                    case 's':
+                        ActorObject sphere = ActorManager.CreateNewActor<ActorObject>(ActorManager.ActorTypes[ActorTypeEnum.Sphere]);
+                        ActorManager.AddActorToTile(sphere, MapManager.MapGrid[i, j]);
+                        break;
+                    case 'x':
+                    default:
+                        break;
+                }
+            }
+        }
+        // Build border
+        foreach (Tuple<Vector2Int, Vector2Int> tuple in levelStruct.Borders)
+        {
+            MapManager.CreateBorder(MapManager.GetTile(tuple.Item1), MapManager.GetTile(tuple.Item2));
+        }
     }
-    */
+
+
 
     private void CreateMoveCommandForAllPlayers(GameDirection direction)
     {
@@ -220,7 +207,8 @@ public class GameManager : MonoBehaviour
                 result = IsColorMatching(goal, actor);
             }
         }
-        Debug.Log("WIN RESULT: " + result);
+        if (result == true)
+            SolvedEvent?.Invoke();
 
     }
 

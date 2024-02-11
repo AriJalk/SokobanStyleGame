@@ -73,9 +73,9 @@ public class ActorManager
         GameUtilities.SetParentAndResetPosition(model.transform, actor.transform);
     }
 
-    public ActorObject CreateNewActor(ActorType actorType)
+    public T CreateNewActor<T>(ActorType actorType) where T : ActorObject
     {
-        ActorObject actor = new GameObject().AddComponent<ActorObject>();
+        T actor = new GameObject().AddComponent<T>();
         actor.SetActorType(actorType);
         actor.name = actor.ActorType.TypeName + " Object";
         AttachModel(actor);
@@ -85,19 +85,16 @@ public class ActorManager
 
     public ActorObject CreateNewCube(Color color)
     {
-        ActorObject actor = CreateNewActor(CubeColorTypes[color]);
+        ActorObject actor = CreateNewActor<ActorObject>(CubeColorTypes[color]);
         CubeColorTypes[color].SetCubeColor(actor);
         return actor;
     }
 
 
-    public void AddActorToTile(ActorObject actor, ActorObject tile)
+    public void AddActorToTile(ActorObject actor, TileObject tile)
     {
-        TileType tileType = tile.ActorType as TileType;
-        if (tileType != null)
+        if (tile != null)
         {
-            int posX = tile.GamePosition.x;
-            int posY = tile.GamePosition.y;
             if (ActorsGrid[tile.GamePosition.x, tile.GamePosition.y] == null)
             {
                 actor.transform.SetParent(actorsLayer);
@@ -114,10 +111,11 @@ public class ActorManager
     {
         if(actor.ActorType is T type)
         {
-            return type as T;
+            return type;
         }
         return null;
     }
+
     public ActorObject GetActor(Vector2Int position)
     {
         if (GameUtilities.IsPositionInBounds(ActorsGrid, position))

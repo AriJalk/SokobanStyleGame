@@ -18,9 +18,9 @@ public class MapManager
 
 
 
-    public ActorObject[,] MapGrid { get; private set; }
+    public TileObject[,] MapGrid { get; private set; }
     public Dictionary<BorderStruct, BorderObject> Borders { get; private set; }
-    
+
 
     public MapManager(GameManager gameManager)
     {
@@ -29,7 +29,7 @@ public class MapManager
         gridSizeX = GameManager.GRID_SIZE;
         gridSizeY = GameManager.GRID_SIZE;
         offset = GameManager.OFFSET;
-        MapGrid = new ActorObject[gridSizeX, gridSizeY];
+        MapGrid = new TileObject[gridSizeX, gridSizeY];
         Borders = new Dictionary<BorderStruct, BorderObject>();
         prefabManager = gameManager.PrefabManager;
         goalTypes = new Dictionary<Color, GoalTileType>();
@@ -47,7 +47,7 @@ public class MapManager
     }
 
 
-    public ActorObject GetTile(Vector2Int position)
+    public TileObject GetTile(Vector2Int position)
     {
         if (GameUtilities.IsPositionInBounds(MapGrid, position))
         {
@@ -56,12 +56,11 @@ public class MapManager
         return null;
     }
 
-    public void AddTileToMap(Vector2Int position, ActorTypeEnum type)
+    public TileObject AddTileToMap(Vector2Int position, ActorTypeEnum type)
     {
         if (MapGrid[position.x, position.y] == null)
         {
-            ActorType tileType = tileTypes[type];
-            ActorObject tile = actorManager.CreateNewActor(tileTypes[type]);
+            TileObject tile = actorManager.CreateNewActor<TileObject>(tileTypes[type]);
             if (tile != null)
             {
                 tile.SetGamePosition(position);
@@ -69,13 +68,15 @@ public class MapManager
                 tile.transform.localPosition = new Vector3(position.x + position.x * offset, 0, position.y + position.y * offset);
                 tile.transform.localScale = Vector3.one;
                 MapGrid[position.x, position.y] = tile;
+                return tile;
             }
         }
+        return null;
     }
 
 
 
-    public void SetTileToMap(Vector2Int position, ActorObject tile)
+    public void SetTileToMap(Vector2Int position, TileObject tile)
     {
         tile.SetGamePosition(position);
         tile.transform.SetParent(mapLayerTransform);
@@ -84,12 +85,12 @@ public class MapManager
         MapGrid[position.x, position.y] = tile;
     }
 
-    public ActorObject AddGoalTileToMap(Vector2Int position, Color color)
+    public TileObject AddGoalTileToMap(Vector2Int position, Color color)
     {
         if (MapGrid[position.x, position.y] == null)
         {
             GoalTileType tileType = goalTypes[color];
-            ActorObject tile = actorManager.CreateNewActor(goalTypes[color]);
+            TileObject tile = actorManager.CreateNewActor<TileObject>(goalTypes[color]);
             if (tile != null)
             {
                 tile.SetGamePosition(position);
@@ -104,9 +105,9 @@ public class MapManager
         return null;
     }
 
-    public void CreateBorder(ActorObject tileA, ActorObject tileB)
+    public void CreateBorder(TileObject tileA, TileObject tileB)
     {
-        if (tileA.ActorType is TileType && tileB.ActorType is TileType)
+        if (tileA != null && tileB != null)
         {
             BorderObject border = new GameObject("Border").AddComponent<BorderObject>();
             BorderStruct borderStruct = new BorderStruct(tileA, tileB);
