@@ -10,8 +10,11 @@ namespace SPG.LevelEditor
     public class LevelEditorUI : MonoBehaviour
     {
         public UnityEvent<GridCellObject> CellClickedEvent;
+        public UnityEvent SaveEvent;
         [SerializeField]
         private FlexibleGrid LevelGrid;
+        [SerializeField]
+        private Button saveButton;
 
         private Vector2Int lastPosition;
 
@@ -19,8 +22,10 @@ namespace SPG.LevelEditor
         {
             BuildGrid();
             CellClickedEvent = new UnityEvent<GridCellObject>();
+            SaveEvent = new UnityEvent();
             //Set to number outside of grid
             lastPosition = new Vector2Int(-99, -99);
+            saveButton.onClick.AddListener(SaveClicked);
         }
 
         private void Start()
@@ -77,6 +82,11 @@ namespace SPG.LevelEditor
         private void TestLayer(LayerMask layerMask)
         {
             Debug.Log("LayerMask binary: " + Convert.ToString(layerMask.value, 2));
+        }
+
+        private void SaveClicked()
+        {
+            SaveEvent?.Invoke();
         }
     }
 }

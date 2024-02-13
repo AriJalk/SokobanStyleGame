@@ -5,7 +5,7 @@ public static class GameUtilities
 {
     public static Color Red = new Color(0.6698113f, 0.2180046f, 0.2180046f, 1f);
     public static Color Blue = new Color(0.2021627f, 0.3961491f, 0.5566037f, 1f);
-    public static bool IsPositionInBounds (object[,] grid, Vector2Int position)
+    public static bool IsPositionInBounds(object[,] grid, Vector2Int position)
     {
         bool result = false;
         if (position.x >= 0 && position.x < grid.GetLength(0) &&
@@ -58,5 +58,19 @@ public static class GameUtilities
             default:
                 return Color.clear;
         }
+    }
+
+    public static string ArrayToString<T>(T[,] array)
+    {
+        string str = string.Empty;
+        for (int i = 0; i < array.GetLength(0); i++)
+        {
+            for (int j = 0; j < array.GetLength(1); j++)
+            {
+                str += array[i, j];
+            }
+            str += "\n";
+        }
+        return str;
     }
 }

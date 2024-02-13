@@ -30,11 +30,14 @@ public class LevelEditor : MonoBehaviour
     private char[,] entityGrid = new char[GRID_SIZE, GRID_SIZE];
 
     private UnityEvent<GridCellObject> cellClickedEvent;
+    private UnityEvent saveEvent;
     // Start is called before the first frame update
     void Start()
     {
         cellClickedEvent = ui.CellClickedEvent;
         cellClickedEvent.AddListener(ProcessCellInput);
+        saveEvent = ui.SaveEvent;
+        saveEvent.AddListener(SaveLevel);
     }
 
     // Update is called once per frame
@@ -133,9 +136,9 @@ public class LevelEditor : MonoBehaviour
 
     private void ProccessRemove(GridCellObject cell)
     {
-        foreach(Toggle toggle in toggleGroupManager.ActorSelectionOptions.ActiveToggles())
+        foreach (Toggle toggle in toggleGroupManager.ActorSelectionOptions.ActiveToggles())
         {
-            switch(toggle.name)
+            switch (toggle.name)
             {
                 case "TileOption":
                     cell.GetComponent<Image>().color = Color.gray;
@@ -209,5 +212,42 @@ public class LevelEditor : MonoBehaviour
         }
         Debug.Log("map\n" + map);
         Debug.Log("entieis\n" + entities);
+    }
+
+    private void SaveLevel()
+    {
+        LevelStruct levelStruct = new LevelStruct(mapGrid, entityGrid, new List<System.Tuple<Vector2Int, Vector2Int>>());
+        levelStruct.SerializeFields();
+        string json = JsonUtility.ToJson(levelStruct);
+        Debug.Log(json);
+        Test_Json();
+    }
+
+    private void LoadLevel()
+    {
+
+    }
+
+    private bool Test_Json()
+    {
+        LevelStruct levelStruct = new LevelStruct(mapGrid, entityGrid, new List<System.Tuple<Vector2Int, Vector2Int>>());
+        levelStruct.SerializeFields();
+        string originalJson = JsonUtility.ToJson(levelStruct);
+        Debug.Log("Original JSON\n" + originalJson);
+
+        levelStruct = JsonUtility.FromJson<LevelStruct>(originalJson);
+        levelStruct.DeserializeFields();
+        levelStruct.SerializeFields();
+
+        string secondJson = JsonUtility.ToJson(levelStruct);
+        Debug.Log("Second JSON\n" + secondJson);
+
+        if (string.Compare(originalJson, secondJson) == 0)
+        {
+            Debug.Log("Test Passed OK");
+            return true;
+        }
+        Debug.Log("Level JSON not equal");
+        return false;
     }
 }
