@@ -17,17 +17,16 @@ public class MainMenuUI : MonoBehaviour
     private TMP_InputField inputField;
 
     private LevelBuilder levelBuilder;
+    
 
     private void Awake()
     {
-         levelBuilder = new LevelBuilder();
+        levelBuilder = new LevelBuilder();
 
         loadLevelTextButton.onClick.AddListener(LoadLevelText);
         loadLevel1Button.onClick.AddListener(LoadLevel1);
         loadLevel2Button.onClick.AddListener(LoadLevel2);
         loadLevelEditorButton.onClick.AddListener(LoadLevelEditor);
-
-        
     }
 
     private void OnDestroy()
@@ -40,10 +39,9 @@ public class MainMenuUI : MonoBehaviour
 
     private void LoadLevel(LevelStruct level)
     {
-        GameObject managerObject = new GameObject("Manager");
-        GameManager gameManager = managerObject.AddComponent<GameManager>();
+
         AsyncOperation load = SceneManager.LoadSceneAsync(1);
-        load.completed += z => { gameManager.InitializeGameScene(level); };
+        load.completed += z => { StaticManager.GameManager.InitializeGameScene(level); };
         
 
     }
@@ -64,8 +62,11 @@ public class MainMenuUI : MonoBehaviour
 
     private void LoadLevelText()
     {
+        if (inputField.text == string.Empty)
+            return;
         LevelStruct level = JsonUtility.FromJson<LevelStruct>(inputField.text);
         level.DeserializeFields();
-        LoadLevel(level);
+        if(level.EntityGrid != null && level.TileGrid != null)   
+            LoadLevel(level);
     }
 }

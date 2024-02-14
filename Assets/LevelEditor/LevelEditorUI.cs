@@ -74,14 +74,15 @@ namespace SPG.LevelEditor
             {
                 for (int j = 0; j < LevelGrid.GridConstraint; j++)
                 {
-                    GameObject cell = new GameObject($"Cell_[{i},{j}]", typeof(RectTransform));
+                    GameObject cell = new GameObject($"Cell_[{j},{i}]", typeof(RectTransform));
                     cell.layer = LayerMask.NameToLayer("GridCell");
                     Image image = cell.AddComponent<Image>();
                     image.sprite = Resources.Load<Sprite>("Empty");
                     image.color = Color.gray;
 
                     GridCellObject cellObject = cell.AddComponent<GridCellObject>();
-                    cellObject.GamePosition = new Vector2Int(i, j);
+                    // Transform so that the result matrix is rotated 90 degress in data to corespond to X,Y
+                    cellObject.GamePosition = new Vector2Int(j, LevelGrid.GridConstraint - i -1);
                     GameUtilities.SetParentAndResetPosition(cell.transform, LevelGrid.transform);
 
                     GameObject entityOnCell = new GameObject("Text", typeof(TextMeshProUGUI));

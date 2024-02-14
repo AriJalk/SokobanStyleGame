@@ -33,6 +33,7 @@ public struct LevelStruct
     {
         TileGridSerialized = string.Empty;
         EntityGridSerialized = string.Empty;
+        GridSize = TileGrid.GetLength(0);
         for (int i = 0; i < TileGrid.GetLength(0); i++)
         {
             for (int j = 0; j < TileGrid.GetLength(1); j++)

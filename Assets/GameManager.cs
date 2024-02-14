@@ -39,26 +39,23 @@ public class GameManager : MonoBehaviour
         gameInputManager = new GameInputManager();
         gameInputManager.ActionTriggeredEvent.AddListener(CreateCommand);
 
-        turnStack = new Stack<GameTurn>();
-        
-
-
         DontDestroyOnLoad(this);
     }
 
     private void Update()
     {
         gameInputManager.Listen();
-
+        
     }
-
     private void OnDestroy()
     {
         gameInputManager.ActionTriggeredEvent.RemoveListener(CreateCommand);
+        SolvedEvent.RemoveAllListeners();
     }
 
     public void InitializeGameScene(LevelStruct levelStruct)
     {
+        turnStack = new Stack<GameTurn>();
         Grid_Size = levelStruct.GridSize;
         GameObject world = GameObject.Find("World");
         if(world == null)
@@ -227,7 +224,11 @@ public class GameManager : MonoBehaviour
                     result = false;
                     break;
                 }
-                result = IsColorMatching(goal, actor);
+                if(!IsColorMatching(goal, actor))
+                {
+                    result = false;
+                    break;
+                }
             }
         }
         if (result == true)

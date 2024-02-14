@@ -11,11 +11,11 @@ public class LevelBuilder
     {
         Levels = new List<LevelStruct>();
         char[,] tiles = {
-            { 'x', 'R', 't', 't', 't' },
+            { 'x', 'r', 't', 't', 't' },
             { 't', 't', 't', 't', 't' },
             { 't', 't', 't', 't', 't' },
             { 't', 't', 't', 't', 't' },
-            { 't', 'B', 't', 't', 't' },
+            { 't', 'b', 't', 't', 't' },
         };
 
         char[,] entities = {
@@ -39,11 +39,11 @@ public class LevelBuilder
         ////////////////////////////
         ///
         tiles = new char[,]{
-            { 'x', 'R', 't', 't', },
+            { 'x', 'r', 't', 't', },
             { 't', 't', 't', 't', },
             { 't', 't', 't', 't', },
             { 't', 't', 't', 't', },
-            { 't', 'B', 't', 't', },
+            { 't', 'b', 't', 't', },
         };
         entities = new char[,]{
             { 'x', 'x', 'p', 'x', },
