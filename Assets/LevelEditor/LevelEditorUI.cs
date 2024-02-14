@@ -7,25 +7,34 @@ using UnityEngine.UI;
 
 namespace SPG.LevelEditor
 {
+    public enum ButtonEvents
+    {
+        Save,
+        Exit,
+    }
     public class LevelEditorUI : MonoBehaviour
     {
         public UnityEvent<GridCellObject> CellClickedEvent;
-        public UnityEvent SaveEvent;
+        public UnityEvent<ButtonEvents> ButtonEvent;
         [SerializeField]
         private FlexibleGrid LevelGrid;
         [SerializeField]
         private Button saveButton;
+        [SerializeField]
+        private Button exitButton;
 
         private Vector2Int lastPosition;
+        private Button clickedButton;
 
         private void Awake()
         {
             BuildGrid();
             CellClickedEvent = new UnityEvent<GridCellObject>();
-            SaveEvent = new UnityEvent();
+            ButtonEvent = new UnityEvent<ButtonEvents>();
             //Set to number outside of grid
             lastPosition = new Vector2Int(-99, -99);
             saveButton.onClick.AddListener(SaveClicked);
+            exitButton.onClick.AddListener(ExitClicked);
         }
 
         private void Start()
@@ -51,6 +60,12 @@ namespace SPG.LevelEditor
             {
                 lastPosition = new Vector2Int(-99,-99);
             }
+        }
+
+        private void OnDestroy()
+        {
+            saveButton.onClick.RemoveListener(SaveClicked);
+            exitButton.onClick.RemoveListener(ExitClicked);
         }
 
         private void BuildGrid()
@@ -86,7 +101,12 @@ namespace SPG.LevelEditor
 
         private void SaveClicked()
         {
-            SaveEvent?.Invoke();
+            ButtonEvent?.Invoke(ButtonEvents.Save);
+        }
+
+        private void ExitClicked()
+        {
+            ButtonEvent?.Invoke(ButtonEvents.Exit);
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class LevelEditor : MonoBehaviour
@@ -30,14 +31,14 @@ public class LevelEditor : MonoBehaviour
     private char[,] entityGrid = new char[GRID_SIZE, GRID_SIZE];
 
     private UnityEvent<GridCellObject> cellClickedEvent;
-    private UnityEvent saveEvent;
+    private UnityEvent<ButtonEvents> buttonEvent;
     // Start is called before the first frame update
     void Start()
     {
         cellClickedEvent = ui.CellClickedEvent;
         cellClickedEvent.AddListener(ProcessCellInput);
-        saveEvent = ui.SaveEvent;
-        saveEvent.AddListener(SaveLevel);
+        buttonEvent = ui.ButtonEvent;
+        buttonEvent.AddListener(ProccessButtonCommand);
     }
 
     // Update is called once per frame
@@ -49,6 +50,7 @@ public class LevelEditor : MonoBehaviour
     private void OnDestroy()
     {
         cellClickedEvent?.RemoveListener(ProcessCellInput);
+        buttonEvent?.RemoveListener(ProccessButtonCommand);
     }
 
     private void ProcessCellInput(GridCellObject cell)
@@ -221,11 +223,12 @@ public class LevelEditor : MonoBehaviour
         string json = JsonUtility.ToJson(levelStruct);
         Debug.Log(json);
         Test_Json();
+        GameUtilities.CopyStringToClipboard(json);
     }
 
-    private void LoadLevel()
+    private void ExitEditor()
     {
-
+        SceneManager.LoadScene(0);
     }
 
     private bool Test_Json()
@@ -250,4 +253,20 @@ public class LevelEditor : MonoBehaviour
         Debug.Log("Level JSON not equal");
         return false;
     }
+
+    private void ProccessButtonCommand(ButtonEvents clickedEvent)
+    {
+        switch(clickedEvent)
+        {
+            case ButtonEvents.Save:
+                SaveLevel();
+                break;
+            case ButtonEvents.Exit:
+                ExitEditor();
+                break;
+            default:
+                break;
+        }
+    }
+
 }

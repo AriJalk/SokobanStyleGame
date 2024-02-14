@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using Unity.VisualScripting;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Events;
-using UnityEngine.Timeline;
 
 
 public class ActorManager
@@ -23,7 +19,7 @@ public class ActorManager
 
     public ActorManager(GameManager manager)
     {
-        grid_size = GameManager.GRID_SIZE;
+        grid_size = manager.Grid_Size;
         offset = GameManager.OFFSET;
         actorsLayer = manager.ActorLayerTransform;
         this.prefabManager = manager.PrefabManager;

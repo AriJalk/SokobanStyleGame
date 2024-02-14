@@ -26,8 +26,8 @@ public class MapManager
     {
         actorManager = gameManager.ActorManager;
         mapLayerTransform = gameManager.MapLayerTransform;
-        gridSizeX = GameManager.GRID_SIZE;
-        gridSizeY = GameManager.GRID_SIZE;
+        gridSizeX = gameManager.Grid_Size;
+        gridSizeY = gameManager.Grid_Size;
         offset = GameManager.OFFSET;
         MapGrid = new TileObject[gridSizeX, gridSizeY];
         Borders = new Dictionary<BorderStruct, BorderObject>();
@@ -44,6 +44,11 @@ public class MapManager
 
         goalTileType = new GoalTileType(GameColors.Blue);
         goalTypes.Add(Color.blue, goalTileType);
+    }
+
+    public void InitializeMapManager(GameManager gameManager)
+    {
+        
     }
 
 

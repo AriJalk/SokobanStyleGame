@@ -1,17 +1,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Numerics;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.Playables;
 
 public class GameManager : MonoBehaviour
 {
     public UnityEvent SolvedEvent;
-    //TODO: change it to dynamic handling
-    public const int GRID_SIZE = 5;
+
     public const float OFFSET = 0.02f;
 
     private GameInputManager gameInputManager;
@@ -20,18 +16,20 @@ public class GameManager : MonoBehaviour
 
     private List<TileObject> goalTiles;
 
-    [SerializeField]
-    private UserInterface UserInterface;
+    private UserInterface userInterface;
 
+
+    // Transforms to load
+    public Transform MapLayerTransform {  get; private set; }
+    public Transform ActorLayerTransform { get; private set; }
+    public Transform UnactiveObjects {  get; private set; }
+
+    public MapManager MapManager {  get; private set; }
     public PrefabManager PrefabManager { get; private set; }
     public ActorManager ActorManager { get; private set; }
+    public int Grid_Size { get; private set; }
 
-    public MapManager MapManager;
 
-    public Transform MapLayerTransform;
-    public Transform ActorLayerTransform;
-    public Transform UnactiveObjects;
-    
 
 
 
@@ -42,23 +40,10 @@ public class GameManager : MonoBehaviour
         gameInputManager.ActionTriggeredEvent.AddListener(CreateCommand);
 
         turnStack = new Stack<GameTurn>();
-
-        PrefabManager = new PrefabManager(UnactiveObjects);
-        PrefabManager.LoadAndRegisterGameObject(ActorTypeEnum.Cube, GRID_SIZE * GRID_SIZE);
-        PrefabManager.LoadAndRegisterGameObject(ActorTypeEnum.Player, 5);
-        PrefabManager.LoadAndRegisterGameObject(ActorTypeEnum.BasicTile, GRID_SIZE * GRID_SIZE);
-        PrefabManager.LoadAndRegisterGameObject(ActorTypeEnum.Sphere, 10);
-        PrefabManager.LoadAndRegisterGameObject(ActorTypeEnum.Border, 100);
-        PrefabManager.LoadAndRegisterGameObject(ActorTypeEnum.GoalTile, 5);
+        
 
 
-
-        ActorManager = new ActorManager(this);
-        MapManager = new MapManager(this);
-
-        LevelBuilder levelBuilder = new LevelBuilder();
-        BuildLevel(levelBuilder.Levels[1]);
-        UserInterface.Initialize(SolvedEvent);
+        DontDestroyOnLoad(this);
     }
 
     private void Update()
@@ -71,6 +56,44 @@ public class GameManager : MonoBehaviour
     {
         gameInputManager.ActionTriggeredEvent.RemoveListener(CreateCommand);
     }
+
+    public void InitializeGameScene(LevelStruct levelStruct)
+    {
+        Grid_Size = levelStruct.GridSize;
+        GameObject world = GameObject.Find("World");
+        if(world == null)
+        {
+            Debug.Log("World not found");
+            return;
+        }
+
+        
+        MapLayerTransform = world.transform.Find("MapLayer");
+        ActorLayerTransform = world.transform.Find("ActorLayer").transform;
+        UnactiveObjects = GameObject.Find("UnactiveObjects").transform;
+        userInterface = GameObject.Find("UserInterface").GetComponent<UserInterface>();
+        userInterface.Initialize(SolvedEvent);
+        PrefabManager = new PrefabManager(UnactiveObjects);
+
+        ActorManager = new ActorManager(this);
+        MapManager = new MapManager(this);
+
+        if (MapLayerTransform == null || ActorLayerTransform == null || UnactiveObjects == null || userInterface == null)
+        {
+            Debug.Log("Missing Components");
+            return;
+        }
+
+        PrefabManager.LoadAndRegisterGameObject(ActorTypeEnum.Cube, Grid_Size * Grid_Size);
+        PrefabManager.LoadAndRegisterGameObject(ActorTypeEnum.Player, 5);
+        PrefabManager.LoadAndRegisterGameObject(ActorTypeEnum.BasicTile, Grid_Size * Grid_Size);
+        PrefabManager.LoadAndRegisterGameObject(ActorTypeEnum.Sphere, 10);
+        PrefabManager.LoadAndRegisterGameObject(ActorTypeEnum.Border, Grid_Size * Grid_Size);
+        PrefabManager.LoadAndRegisterGameObject(ActorTypeEnum.GoalTile, 5);
+
+        BuildLevel(levelStruct);
+    }
+
 
     private void BuildLevel(LevelStruct levelStruct)
     {
@@ -85,10 +108,10 @@ public class GameManager : MonoBehaviour
                     case 't':
                         TileObject tile = MapManager.AddTileToMap(new Vector2Int(i, j), ActorTypeEnum.BasicTile);
                         break;
-                    case 'R':
+                    case 'r':
                         goalTiles.Add(MapManager.AddGoalTileToMap(new Vector2Int(i, j), Color.red));
                         break;
-                    case 'B':
+                    case 'b':
                         goalTiles.Add(MapManager.AddGoalTileToMap(new Vector2Int(i, j), Color.blue));
                         break;
                     case 'x':
@@ -230,6 +253,8 @@ public class GameManager : MonoBehaviour
             commands.UndoAllSets();
         }
     }
+
+    
 
     public void CreateCommand(GameActions action)
     {

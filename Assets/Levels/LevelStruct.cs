@@ -51,6 +51,7 @@ public struct LevelStruct
     }
     public void DeserializeFields()
     {
+        Borders = new List<Tuple<Vector2Int, Vector2Int>>();
         GridSize = (int)Mathf.Sqrt(TileGridSerialized.Length);
         TileGrid = new char[GridSize, GridSize];
         EntityGrid = new char[GridSize, GridSize];

@@ -73,4 +73,10 @@ public static class GameUtilities
         }
         return str;
     }
+
+    public static void CopyStringToClipboard(string str)
+    {
+        GUIUtility.systemCopyBuffer = str;
+        Debug.Log("String copied to clipboard: " + str);
+    }
 }
