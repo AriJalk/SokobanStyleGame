@@ -79,4 +79,23 @@ public static class GameUtilities
         GUIUtility.systemCopyBuffer = str;
         Debug.Log("String copied to clipboard: " + str);
     }
+
+    public static void SquareAnchors(RectTransform rectTransform, Transform parentObject)
+    {
+        // Get the parent container's RectTransform
+        RectTransform parentRect = parentObject.GetComponent<RectTransform>();
+
+        // Calculate the reference size (width or height)
+        float parentWidth = parentRect.rect.width;
+        float parentHeight = parentRect.rect.height;
+
+        // Calculate the normalized size of the object relative to the parent container
+        float normalizedSize = Mathf.Min(parentWidth, parentHeight);
+
+        // Set the anchors to achieve a square proportion within the parent container
+        rectTransform.anchorMin = new Vector2(0.5f - normalizedSize / (2f * parentWidth), 0.5f - normalizedSize / (2f * parentHeight));
+        rectTransform.anchorMax = new Vector2(0.5f + normalizedSize / (2f * parentWidth), 0.5f + normalizedSize / (2f * parentHeight));
+    }
+
+
 }
