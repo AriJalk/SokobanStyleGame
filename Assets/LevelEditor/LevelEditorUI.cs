@@ -170,16 +170,24 @@ namespace SPG.LevelEditor
 
         private GameObject CreateCellObject(int x, int y, Transform parent, float cellSize)
         {
-            GameObject cellObject = new GameObject($"Cell_[{x},{y}]", typeof(RectTransform));
-            cellObject.layer = LayerMask.NameToLayer("GridCell");
-            GridCellObject cellComponent = gameObject.AddComponent<GridCellObject>();
-            AddEmptyImageComponent(cellObject);
-            GameUtilities.SetParentAndResetPosition(cellObject.transform, parent.transform);
-            cellComponent.GamePosition = new Vector2Int(x, y);
-            RectTransform cellRect = cellObject.GetComponent<RectTransform>();
-            cellRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, cellSize);
+            GameObject cell = new GameObject($"Cell_[{x},{y}]", typeof(RectTransform));
+            cell.layer = LayerMask.NameToLayer("GridCell");
+            Image image = cell.AddComponent<Image>();
+            image.sprite = Resources.Load<Sprite>("Empty");
+            image.color = Color.gray;
 
-            return cellObject;
+            GridCellObject cellObject = cell.AddComponent<GridCellObject>();
+            // Transform so that the result matrix is rotated 90 degress in data to corespond to X,Y
+            cellObject.GamePosition = new Vector2Int(x, LevelEditor.GRID_SIZE - y - 1);
+            GameUtilities.SetParentAndResetPosition(cell.transform, parent);
+
+            GameObject entityOnCell = new GameObject("Text", typeof(TextMeshProUGUI));
+
+            GameUtilities.SetParentAndResetPosition(entityOnCell.transform, cell.transform);
+            GameUtilities.ResetAnchors(entityOnCell.GetComponent<RectTransform>());
+            cellObject.EntityOnTile = entityOnCell.GetComponent<TextMeshProUGUI>();
+            cell.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, cellSize);
+            return cell;
         }
 
         private float CalculateCellSize()
