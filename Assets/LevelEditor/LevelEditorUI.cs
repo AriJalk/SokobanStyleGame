@@ -18,7 +18,7 @@ namespace SPG.LevelEditor
     {
         public const float BORDER_SCALE = 4f;
         public const float TILE_GAP = 2f;
-        public UnityEvent<GridCellObject> CellClickedEvent;
+        public UnityEvent<GameObject> CellClickedEvent;
         public UnityEvent<ButtonEvents> ButtonEvent;
         [SerializeField]
         private VerticalLayoutGroup rowsLayoutGroup;
@@ -29,17 +29,16 @@ namespace SPG.LevelEditor
         [SerializeField]
         private Button exitButton;
 
-        private Vector2Int lastPosition;
+        private GameObject lastCell;
         private Button clickedButton;
 
         private void Awake()
         {
             //BuildGrid();
             BuildGridNew();
-            CellClickedEvent = new UnityEvent<GridCellObject>();
+            CellClickedEvent = new UnityEvent<GameObject>();
             ButtonEvent = new UnityEvent<ButtonEvents>();
             //Set to number outside of grid
-            lastPosition = new Vector2Int(-99, -99);
             saveButton.onClick.AddListener(SaveClicked);
             exitButton.onClick.AddListener(ExitClicked);
         }
@@ -56,16 +55,15 @@ namespace SPG.LevelEditor
 
                 Transform cell = UIRaycaster.Raycast(Input.mousePosition, LayerMask.GetMask("GridCell"));
 
-                if (cell != null && cell.GetComponent<GridCellObject>() is GridCellObject cellObject && cellObject.GamePosition != lastPosition)
+                if (cell != null && cell != lastCell)
                 {
-                    lastPosition = cellObject.GamePosition;
-                    Debug.Log(cellObject.GamePosition);
-                    CellClickedEvent?.Invoke(cellObject);
+                    lastCell = cell.gameObject;
+                    CellClickedEvent?.Invoke(cell.gameObject);
                 }
             }
             if (Input.GetMouseButtonUp(0))
             {
-                lastPosition = new Vector2Int(-99, -99);
+                lastCell = null;
             }
         }
 

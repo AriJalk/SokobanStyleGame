@@ -4,19 +4,22 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class GridCellObject : MonoBehaviour
+namespace SPG.LevelEditor
 {
-    public Vector2Int GamePosition { get; set; }
-    public TextMeshProUGUI EntityOnTile { get; set; }
-    // Start is called before the first frame update
-    void Start()
+    public class GridCellObject : MonoBehaviour
     {
-        
-    }
+        public Vector2Int GamePosition { get; set; }
+        public TextMeshProUGUI EntityOnTile { get; set; }
+        // Start is called before the first frame update
+        void Start()
+        {
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+        }
+
+        // Update is called once per frame
+        void Update()
+        {
+
+        }
     }
 }

@@ -35,7 +35,7 @@ namespace SPG.LevelEditor
         private char[,] mapGrid = new char[GRID_SIZE, GRID_SIZE];
         private char[,] entityGrid = new char[GRID_SIZE, GRID_SIZE];
 
-        private UnityEvent<GridCellObject> cellClickedEvent;
+        private UnityEvent<GameObject> cellClickedEvent;
         private UnityEvent<ButtonEvents> buttonEvent;
         // Start is called before the first frame update
         void Start()
@@ -58,7 +58,7 @@ namespace SPG.LevelEditor
             buttonEvent?.RemoveListener(ProccessButtonCommand);
         }
 
-        private void ProcessCellInput(GridCellObject cell)
+        private void ProcessCellInput(GameObject cell)
         {
             IEnumerable<Toggle> paintModeToggle = toggleGroupManager.PaintModeToggleOptions.ActiveToggles();
 
@@ -78,17 +78,21 @@ namespace SPG.LevelEditor
             }
         }
 
-        private void ProcessAdd(IEnumerable<Toggle> actorToggles, GridCellObject cell)
+        private void ProcessAdd(IEnumerable<Toggle> actorToggles, GameObject cell)
         {
+            GridCellObject tile = cell.GetComponent<GridCellObject>();
+
             foreach (Toggle toggle in actorToggles)
             {
                 switch (toggle.name)
                 {
                     case "TileOption":
-                        ProcessAddTile(toggleGroupManager.TileVariants.ActiveToggles(), cell);
+                        if(tile != null)
+                        ProcessAddTile(toggleGroupManager.TileVariants.ActiveToggles(), tile);
                         break;
                     case "EntityOption":
-                        ProcessAddEntity(toggleGroupManager.EntityVariants.ActiveToggles(), cell);
+                        if(tile != null)
+                            ProcessAddEntity(toggleGroupManager.EntityVariants.ActiveToggles(), tile);
                         break;
                     default:
                         break;
@@ -141,19 +145,27 @@ namespace SPG.LevelEditor
             PrintCells();
         }
 
-        private void ProccessRemove(GridCellObject cell)
+        private void ProccessRemove(GameObject cell)
         {
+            GridCellObject tile = cell.GetComponent<GridCellObject>();
             foreach (Toggle toggle in toggleGroupManager.ActorSelectionOptions.ActiveToggles())
             {
                 switch (toggle.name)
                 {
                     case "TileOption":
-                        cell.GetComponent<Image>().color = Color.gray;
-                        mapGrid[cell.GamePosition.x, cell.GamePosition.y] = '\0';
+                        if(tile != null)
+                        {
+                            tile.GetComponent<Image>().color = Color.gray;
+                            mapGrid[tile.GamePosition.x, tile.GamePosition.y] = '\0';
+                        }
+                        
                         break;
                     case "EntityOption":
-                        cell.EntityOnTile.text = '\0'.ToString();
-                        entityGrid[cell.GamePosition.x, cell.GamePosition.y] = '\0';
+                        if(tile != null)
+                        {
+                            tile.EntityOnTile.text = '\0'.ToString();
+                            entityGrid[tile.GamePosition.x, tile.GamePosition.y] = '\0';
+                        } 
                         break;
                     default:
                         break;
