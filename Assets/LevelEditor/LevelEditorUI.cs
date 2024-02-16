@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -18,7 +16,7 @@ namespace SPG.LevelEditor
     {
         public const float BORDER_SCALE = 4f;
         public const float TILE_GAP = 2f;
-        public UnityEvent<GameObject> CellClickedEvent;
+        public UnityEvent<LevelEditorCellBase> CellClickedEvent;
         public UnityEvent<ButtonEvents> ButtonEvent;
         [SerializeField]
         private VerticalLayoutGroup rowsLayoutGroup;
@@ -29,14 +27,15 @@ namespace SPG.LevelEditor
         [SerializeField]
         private Button exitButton;
 
-        private GameObject lastCell;
+        private LevelEditorCellBase lastCell;
+        private Type lastType;
         private Button clickedButton;
 
         private void Awake()
         {
             //BuildGrid();
             BuildGridNew();
-            CellClickedEvent = new UnityEvent<GameObject>();
+            CellClickedEvent = new UnityEvent<LevelEditorCellBase>();
             ButtonEvent = new UnityEvent<ButtonEvents>();
             //Set to number outside of grid
             saveButton.onClick.AddListener(SaveClicked);
@@ -52,18 +51,18 @@ namespace SPG.LevelEditor
         {
             if (Input.GetMouseButton(0))
             {
-
+                //Paint with selected tile / entity
                 Transform cell = UIRaycaster.Raycast(Input.mousePosition, LayerMask.GetMask("GridCell"));
-
-                if (cell != null && cell != lastCell)
+                if(cell != null)
                 {
-                    lastCell = cell.gameObject;
-                    CellClickedEvent?.Invoke(cell.gameObject);
+                    ProcessCell(cell);
                 }
             }
+
             if (Input.GetMouseButtonUp(0))
             {
                 lastCell = null;
+                lastType = null;
             }
         }
 
@@ -96,11 +95,7 @@ namespace SPG.LevelEditor
                     // CreateBorder
                     if (j < LevelEditor.GRID_SIZE - 1)
                     {
-                        GameObject borderObject = new GameObject($"Border_[{j},{i}]-[{j + 1},{i}]", typeof(RectTransform));
-                        RectTransform borderRect = borderObject.GetComponent<RectTransform>();
-                        GameUtilities.SetParentAndResetPosition(borderObject.transform, row.transform);
-                        AddEmptyImageComponent(borderObject);
-                        borderRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, cellSize / BORDER_SCALE);
+                        LevelEditorBorderObject borderObject = CreateBorder(new Vector2Int(j, i), new Vector2Int(j + 1, i), cellSize, row.transform, RectTransform.Axis.Vertical);
                     }
                 }
                 if (i < LevelEditor.GRID_SIZE - 1)
@@ -117,7 +112,7 @@ namespace SPG.LevelEditor
 
             for (int i = 0; i < LevelEditor.GRID_SIZE; i++)
             {
-                CreateBorder(new Vector2Int(i, rowIndex), new Vector2Int(i, rowIndex + 1), cellSize, borderRow.transform);
+                CreateBorder(new Vector2Int(i, rowIndex), new Vector2Int(i, rowIndex + 1), cellSize, borderRow.transform, RectTransform.Axis.Horizontal);
                 if (i < LevelEditor.GRID_SIZE - 1)
                 {
                     GameObject gapObject = new GameObject("Gap", typeof(RectTransform));
@@ -132,27 +127,27 @@ namespace SPG.LevelEditor
             return borderRow;
         }
 
-        private GameObject CreateBorder(Vector2Int positionA, Vector2Int positionB, float cellSize, Transform parent)
+        private LevelEditorBorderObject CreateBorder(Vector2Int positionA, Vector2Int positionB, float cellSize, Transform parent, RectTransform.Axis axis)
         {
-            GameObject borderObject = new GameObject($"Border_[{positionA.x},{positionA.y}]-[{positionB.x},{positionB.y}]", typeof(RectTransform));
-            RectTransform borderRect = borderObject.GetComponent<RectTransform>();
+            GameObject gameObject = new GameObject($"Border_[{positionA.x},{positionA.y}]-[{positionB.x},{positionB.y}]", typeof(RectTransform));
+            LevelEditorBorderObject borderObject = gameObject.AddComponent<LevelEditorBorderObject>();
+            borderObject.RectTransform = borderObject.GetComponent<RectTransform>();
             GameUtilities.SetParentAndResetPosition(borderObject.transform, parent);
             AddEmptyImageComponent(borderObject);
-            borderRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, cellSize);
+            float borderSize = (axis == RectTransform.Axis.Horizontal ? cellSize : cellSize / 4f);
+            borderObject.RectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, borderSize);
+            gameObject.layer = LayerMask.NameToLayer("GridCell");
 
             return borderObject;
         }
 
-        private Image AddEmptyImageComponent(GameObject gameObject)
+        private Image AddEmptyImageComponent(LevelEditorCellBase gameObject)
         {
-            Image image = gameObject.AddComponent<Image>();
-            image.sprite = Resources.Load<Sprite>("Empty");
-            image.color = Color.gray;
-            return image;
+            gameObject.Image = gameObject.AddComponent<Image>();
+            gameObject.Image.sprite = Resources.Load<Sprite>("Empty");
+            gameObject.Image.color = Color.gray;
+            return gameObject.Image;
         }
-
-
-
         private GameObject CreateRowObject(int index, float cellSize)
         {
             GameObject row = new GameObject($"Row_{index}", typeof(RectTransform));
@@ -165,7 +160,6 @@ namespace SPG.LevelEditor
             horizontalLayoutGroup.childForceExpandWidth = false;
             return row;
         }
-
         private GameObject CreateCellObject(int x, int y, Transform parent, float cellSize)
         {
             GameObject cell = new GameObject($"Cell_[{x},{y}]", typeof(RectTransform));
@@ -174,7 +168,7 @@ namespace SPG.LevelEditor
             image.sprite = Resources.Load<Sprite>("Empty");
             image.color = Color.gray;
 
-            GridCellObject cellObject = cell.AddComponent<GridCellObject>();
+            LevelEditorTileObject cellObject = cell.AddComponent<LevelEditorTileObject>();
             // Transform so that the result matrix is rotated 90 degress in data to corespond to X,Y
             cellObject.GamePosition = new Vector2Int(x, LevelEditor.GRID_SIZE - y - 1);
             GameUtilities.SetParentAndResetPosition(cell.transform, parent);
@@ -187,7 +181,6 @@ namespace SPG.LevelEditor
             cell.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, cellSize);
             return cell;
         }
-
         private float CalculateCellSize()
         {
             if (rowsLayoutGroup.GetComponent<RectTransform>() is RectTransform rect)
@@ -205,25 +198,18 @@ namespace SPG.LevelEditor
             }
             return 0;
         }
-
-
-
-
         private void TestLayer(LayerMask layerMask)
         {
             Debug.Log("LayerMask binary: " + Convert.ToString(layerMask.value, 2));
         }
-
         private void SaveClicked()
         {
             ButtonEvent?.Invoke(ButtonEvents.Save);
         }
-
         private void ExitClicked()
         {
             ButtonEvent?.Invoke(ButtonEvents.Exit);
         }
-
         private void UpdateRectSize(RectTransform rectTransform)
         {
 
@@ -232,6 +218,33 @@ namespace SPG.LevelEditor
             rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, smallerEdge);
             rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, smallerEdge);
 
+        }
+
+        private void ProcessCell(Transform cell)
+        {
+            LevelEditorCellBase cellObject = cell.GetComponent<LevelEditorCellBase>();
+            if(cellObject != null)
+            {
+                bool isValid = true;
+                // Initial click
+                if(lastCell == null)
+                {
+                    lastCell = cellObject;
+                }
+                // Follow up
+                else if(cellObject != lastCell && cellObject.GetType() == lastCell.GetType())
+                {
+                    lastCell = cellObject;
+                }
+                else
+                {
+                    isValid = false;
+                }
+                if(isValid)
+                {
+                    CellClickedEvent?.Invoke(cellObject);
+                }
+            }
         }
 
     }

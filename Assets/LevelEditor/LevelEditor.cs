@@ -35,7 +35,7 @@ namespace SPG.LevelEditor
         private char[,] mapGrid = new char[GRID_SIZE, GRID_SIZE];
         private char[,] entityGrid = new char[GRID_SIZE, GRID_SIZE];
 
-        private UnityEvent<GameObject> cellClickedEvent;
+        private UnityEvent<LevelEditorCellBase> cellClickedEvent;
         private UnityEvent<ButtonEvents> buttonEvent;
         // Start is called before the first frame update
         void Start()
@@ -58,7 +58,7 @@ namespace SPG.LevelEditor
             buttonEvent?.RemoveListener(ProccessButtonCommand);
         }
 
-        private void ProcessCellInput(GameObject cell)
+        private void ProcessCellInput(LevelEditorCellBase cell)
         {
             IEnumerable<Toggle> paintModeToggle = toggleGroupManager.PaintModeToggleOptions.ActiveToggles();
 
@@ -78,20 +78,20 @@ namespace SPG.LevelEditor
             }
         }
 
-        private void ProcessAdd(IEnumerable<Toggle> actorToggles, GameObject cell)
+        private void ProcessAdd(IEnumerable<Toggle> actorToggles, LevelEditorCellBase cell)
         {
-            GridCellObject tile = cell.GetComponent<GridCellObject>();
+            LevelEditorTileObject tile = cell.GetComponent<LevelEditorTileObject>();
 
             foreach (Toggle toggle in actorToggles)
             {
                 switch (toggle.name)
                 {
                     case "TileOption":
-                        if(tile != null)
-                        ProcessAddTile(toggleGroupManager.TileVariants.ActiveToggles(), tile);
+                        if (tile != null)
+                            ProcessAddTile(toggleGroupManager.TileVariants.ActiveToggles(), tile);
                         break;
                     case "EntityOption":
-                        if(tile != null)
+                        if (tile != null)
                             ProcessAddEntity(toggleGroupManager.EntityVariants.ActiveToggles(), tile);
                         break;
                     default:
@@ -100,7 +100,7 @@ namespace SPG.LevelEditor
             }
         }
 
-        private void ProcessAddTile(IEnumerable<Toggle> typeToggles, GridCellObject cell)
+        private void ProcessAddTile(IEnumerable<Toggle> typeToggles, LevelEditorTileObject cell)
         {
             foreach (Toggle toggle in typeToggles)
             {
@@ -121,7 +121,7 @@ namespace SPG.LevelEditor
             }
         }
 
-        private void SetTile(GridCellObject cell, char tileType)
+        private void SetTile(LevelEditorTileObject cell, char tileType)
         {
             mapGrid[cell.GamePosition.x, cell.GamePosition.y] = tileType;
             Image image = cell.GetComponent<Image>();
@@ -145,27 +145,27 @@ namespace SPG.LevelEditor
             PrintCells();
         }
 
-        private void ProccessRemove(GameObject cell)
+        private void ProccessRemove(LevelEditorCellBase cell)
         {
-            GridCellObject tile = cell.GetComponent<GridCellObject>();
+            LevelEditorTileObject tile = cell.GetComponent<LevelEditorTileObject>();
             foreach (Toggle toggle in toggleGroupManager.ActorSelectionOptions.ActiveToggles())
             {
                 switch (toggle.name)
                 {
                     case "TileOption":
-                        if(tile != null)
+                        if (tile != null)
                         {
                             tile.GetComponent<Image>().color = Color.gray;
                             mapGrid[tile.GamePosition.x, tile.GamePosition.y] = '\0';
                         }
-                        
+
                         break;
                     case "EntityOption":
-                        if(tile != null)
+                        if (tile != null)
                         {
                             tile.EntityOnTile.text = '\0'.ToString();
                             entityGrid[tile.GamePosition.x, tile.GamePosition.y] = '\0';
-                        } 
+                        }
                         break;
                     default:
                         break;
@@ -173,7 +173,7 @@ namespace SPG.LevelEditor
             }
         }
 
-        private void ProcessAddEntity(IEnumerable<Toggle> typeToggles, GridCellObject cell)
+        private void ProcessAddEntity(IEnumerable<Toggle> typeToggles, LevelEditorTileObject cell)
         {
             foreach (Toggle toggle in typeToggles)
             {
@@ -197,7 +197,7 @@ namespace SPG.LevelEditor
             }
         }
 
-        private void SetEntity(GridCellObject cell, char entityChar)
+        private void SetEntity(LevelEditorTileObject cell, char entityChar)
         {
             cell.EntityOnTile.text = entityChar.ToString();
             Debug.Log(entityChar.ToString());
