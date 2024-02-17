@@ -105,6 +105,7 @@ public class GameManager : MonoBehaviour
                 {
                     case 't':
                         TileObject tile = MapManager.AddTileToMap(new Vector2Int(i, j), ActorTypeEnum.BasicTile);
+                        Debug.Log($"TILE {i},{j} created");
                         break;
                     case 'r':
                         goalTiles.Add(MapManager.AddGoalTileToMap(new Vector2Int(i, j), Color.red));
@@ -144,7 +145,12 @@ public class GameManager : MonoBehaviour
         // Build border
         foreach (LevelEditorBorderStruct border in levelStruct.BorderList)
         {
-            MapManager.CreateBorder(MapManager.GetTile(border.PositionA), MapManager.GetTile(border.PositionB));
+            
+            Vector2Int positionA = GameUtilities.EditorToGamePosition(border.PositionA, Grid_Size);
+            Vector2Int positionB = GameUtilities.EditorToGamePosition(border.PositionB, Grid_Size);
+            Debug.Log($"Border Position A: {border.PositionA} B: {border.PositionB} newA: {positionA} newB{positionB}");
+
+            MapManager.CreateBorder(MapManager.GetTile(positionA), MapManager.GetTile(positionB));
         }
     }
 

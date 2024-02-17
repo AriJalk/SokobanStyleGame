@@ -97,5 +97,14 @@ public static class GameUtilities
         rectTransform.anchorMax = new Vector2(0.5f + normalizedSize / (2f * parentWidth), 0.5f + normalizedSize / (2f * parentHeight));
     }
 
-
+    /// <summary>
+    /// Transform editor position to corelate unity coordinates for game mode
+    /// </summary>
+    /// <param name="editorPosition"></param>
+    /// <param name="gridSize"></param>
+    /// <returns></returns>
+    public static Vector2Int EditorToGamePosition(Vector2Int editorPosition, int gridSize)
+    {
+        return new Vector2Int(editorPosition.x, gridSize - editorPosition.y - 1);
+    }
 }

@@ -134,6 +134,10 @@ public class MapManager
             border.transform.localPosition = position;
             border.transform.localScale = Vector3.one;
         }
+        else
+        {
+
+        }
     }
 
 }
