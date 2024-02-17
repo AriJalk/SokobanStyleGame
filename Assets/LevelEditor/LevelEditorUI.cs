@@ -28,8 +28,6 @@ namespace SPG.LevelEditor
         private Button exitButton;
 
         private LevelEditorCellBase lastCell;
-        private Type lastType;
-        private Button clickedButton;
 
         private void Awake()
         {
@@ -62,7 +60,6 @@ namespace SPG.LevelEditor
             if (Input.GetMouseButtonUp(0))
             {
                 lastCell = null;
-                lastType = null;
             }
         }
 

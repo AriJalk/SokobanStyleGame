@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SPG.LevelEditor;
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using UnityEngine;
@@ -26,15 +27,15 @@ public class LevelBuilder
             { 'x', 'x', 'x', 'x', 'p' },
         };
 
-        List<Tuple<Vector2Int, Vector2Int>> tupleList = new List<Tuple<Vector2Int, Vector2Int>>();
+        List<LevelEditorBorderStruct> borderList = new List<LevelEditorBorderStruct>();
 
-        Tuple<Vector2Int, Vector2Int> tuple = new Tuple<Vector2Int, Vector2Int>(new Vector2Int(2, 2), new Vector2Int(2, 3));
-        tupleList.Add(tuple);
+        LevelEditorBorderStruct borderStruct = new LevelEditorBorderStruct(new Vector2Int(2, 2), new Vector2Int(2, 3));
+        borderList.Add(borderStruct);
 
-        tuple = new Tuple<Vector2Int, Vector2Int>(new Vector2Int(2, 2), new Vector2Int(2, 1));
-        tupleList.Add(tuple);
+        borderStruct = new LevelEditorBorderStruct(new Vector2Int(2, 2), new Vector2Int(2, 1));
+        borderList.Add(borderStruct);
 
-        Levels.Add(new LevelStruct(tiles, entities, tupleList));
+        Levels.Add(new LevelStruct(tiles, entities, new List<LevelEditorBorderStruct>(borderList)));
 
         ////////////////////////////
         ///
@@ -53,13 +54,13 @@ public class LevelBuilder
             { 'x', 'x', 'x', 'p', },
         };
 
-        tupleList = new List<Tuple<Vector2Int, Vector2Int>>();
+        borderList = new List<LevelEditorBorderStruct>();
 
-        tuple = new Tuple<Vector2Int, Vector2Int>(new Vector2Int(2, 2), new Vector2Int(2, 3));
-        tupleList.Add(tuple);
-        tuple = new Tuple<Vector2Int, Vector2Int>(new Vector2Int(2, 2), new Vector2Int(2, 1));
-        tupleList.Add(tuple);
+        borderStruct = new LevelEditorBorderStruct(new Vector2Int(2, 2), new Vector2Int(2, 3));
+        borderList.Add(borderStruct);
+        borderStruct = new LevelEditorBorderStruct(new Vector2Int(2, 2), new Vector2Int(2, 1));
+        borderList.Add(borderStruct);
 
-        Levels.Add(new LevelStruct(tiles, entities, tupleList));
+        Levels.Add(new LevelStruct(tiles, entities, new List<LevelEditorBorderStruct>(borderList)));
     }
 }

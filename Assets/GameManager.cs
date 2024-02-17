@@ -1,4 +1,5 @@
 
+using SPG.LevelEditor;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -141,9 +142,9 @@ public class GameManager : MonoBehaviour
             }
         }
         // Build border
-        foreach (Tuple<Vector2Int, Vector2Int> tuple in levelStruct.Borders)
+        foreach (LevelEditorBorderStruct border in levelStruct.BorderList)
         {
-            MapManager.CreateBorder(MapManager.GetTile(tuple.Item1), MapManager.GetTile(tuple.Item2));
+            MapManager.CreateBorder(MapManager.GetTile(border.PositionA), MapManager.GetTile(border.PositionB));
         }
     }
 

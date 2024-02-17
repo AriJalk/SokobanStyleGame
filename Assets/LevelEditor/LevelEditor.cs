@@ -34,6 +34,7 @@ namespace SPG.LevelEditor
 
         private char[,] mapGrid = new char[GRID_SIZE, GRID_SIZE];
         private char[,] entityGrid = new char[GRID_SIZE, GRID_SIZE];
+        private List<LevelEditorBorderStruct> borderList = new List<LevelEditorBorderStruct>();
 
         private UnityEvent<LevelEditorCellBase> cellClickedEvent;
         private UnityEvent<ButtonEvents> buttonEvent;
@@ -235,7 +236,10 @@ namespace SPG.LevelEditor
 
         private void SaveLevel()
         {
-            LevelStruct levelStruct = new LevelStruct(mapGrid, entityGrid, new List<System.Tuple<Vector2Int, Vector2Int>>());
+            //borderList.Add(new LevelEditorBorderStruct(Vector2Int.zero, Vector2Int.up));
+            //borderList.Add(new LevelEditorBorderStruct(new Vector2Int(3,3), new Vector2Int(4,3)));
+
+            LevelStruct levelStruct = new LevelStruct(mapGrid, entityGrid, borderList);
             levelStruct.SerializeFields();
             string json = JsonUtility.ToJson(levelStruct);
             Debug.Log(json);
@@ -250,7 +254,7 @@ namespace SPG.LevelEditor
 
         private bool Test_Json()
         {
-            LevelStruct levelStruct = new LevelStruct(mapGrid, entityGrid, new List<System.Tuple<Vector2Int, Vector2Int>>());
+            LevelStruct levelStruct = new LevelStruct(mapGrid, entityGrid, borderList);
             levelStruct.SerializeFields();
             string originalJson = JsonUtility.ToJson(levelStruct);
             Debug.Log("Original JSON\n" + originalJson);
