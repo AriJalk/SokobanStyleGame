@@ -9,7 +9,7 @@ public class GameManager : MonoBehaviour
 {
     public UnityEvent SolvedEvent;
 
-    public const float OFFSET = 0.02f;
+    public const float OFFSET = 0.04f;
 
     private GameInputManager gameInputManager;
 

@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-
+/// <summary>
+/// Handles actor functionality (game objects on the map)
+/// </summary>
 public class ActorManager
 {
     private PrefabManager prefabManager;
@@ -10,9 +12,21 @@ public class ActorManager
     private int grid_size;
     private float offset;
 
+    /// <summary>
+    /// Contains actors which respond to player input
+    /// </summary>
     public List<ActorObject> PlayableActors {  get; private set; }
+    /// <summary>
+    /// Placement of each actor on the grid
+    /// </summary>
     public ActorObject[,] ActorsGrid {  get; private set; }
+    /// <summary>
+    /// Shared actor types
+    /// </summary>
     public Dictionary<ActorTypeEnum, ActorType> ActorTypes { get; private set; }
+    /// <summary>
+    /// Shared cube color types
+    /// </summary>
     public Dictionary<Color, CubeActorType> CubeColorTypes {  get; private set; }
 
 
@@ -22,26 +36,30 @@ public class ActorManager
         grid_size = manager.Grid_Size;
         offset = GameManager.OFFSET;
         actorsLayer = manager.ActorLayerTransform;
-        this.prefabManager = manager.PrefabManager;
+        prefabManager = manager.PrefabManager;
         PlayableActors = new List<ActorObject>();
         ActorsGrid = new ActorObject[grid_size, grid_size];
         ActorTypes = new Dictionary<ActorTypeEnum, ActorType>();
         CubeColorTypes = new Dictionary<Color, CubeActorType>();
 
+        // Add player
         PlayerType playableType = new PlayerType();
         ActorTypes.Add(playableType.TypeName, playableType);
 
+
+        // Add cubes
         CubeColorTypes.Add(Color.red, new CubeActorType(GameColors.Red, new LinkedMovementOppositeDirection()));
         CubeColorTypes.Add(Color.blue, new CubeActorType(GameColors.Blue, new LinkedMovementSameDirection()));
 
         EntityActorType.SetLinkedTypes(CubeColorTypes[Color.red], CubeColorTypes[Color.blue]);
 
+        // Add sphere
         EntityActorType sphere = new EntityActorType(ActorTypeEnum.Sphere, false, true);
         ActorTypes.Add(sphere.TypeName, sphere);
 
     }
 
-
+    // Convert actor local position to world Position
     private Vector3 CalculateLocalPosition(ActorObject actor)
     {
         Vector3 position = new Vector3();
@@ -55,6 +73,7 @@ public class ActorManager
         return position;
     }
 
+    // Detach the model gameObject from an actor
     private void DetachModel(ActorObject actor)
     {
         while(actor.transform.childCount > 0)
