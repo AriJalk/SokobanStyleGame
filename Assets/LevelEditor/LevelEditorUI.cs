@@ -134,7 +134,7 @@ namespace SPG.LevelEditor
             float borderSize = (axis == RectTransform.Axis.Horizontal ? cellSize : cellSize / 4f);
             borderObject.RectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, borderSize);
             gameObject.layer = LayerMask.NameToLayer("GridCell");
-
+            borderObject.BorderBetweenTiles = new LevelEditorBorderStruct(positionA, positionB);
             return borderObject;
         }
 
@@ -236,6 +236,7 @@ namespace SPG.LevelEditor
                 else
                 {
                     isValid = false;
+                    lastCell = null;
                 }
                 if(isValid)
                 {

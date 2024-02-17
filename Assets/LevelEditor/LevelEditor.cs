@@ -95,6 +95,48 @@ namespace SPG.LevelEditor
                         if (tile != null)
                             ProcessAddEntity(toggleGroupManager.EntityVariants.ActiveToggles(), tile);
                         break;
+                    case "BorderOption":
+                        LevelEditorBorderObject border = cell.GetComponent<LevelEditorBorderObject>();
+                        if (border != null)
+                        {
+                            ProccessAddBorder(border);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        private void ProccessRemove(LevelEditorCellBase cell)
+        {
+            LevelEditorTileObject tile = cell.GetComponent<LevelEditorTileObject>();
+            foreach (Toggle toggle in toggleGroupManager.ActorSelectionOptions.ActiveToggles())
+            {
+                switch (toggle.name)
+                {
+                    case "TileOption":
+                        if (tile != null)
+                        {
+                            tile.GetComponent<Image>().color = Color.gray;
+                            mapGrid[tile.GamePosition.x, tile.GamePosition.y] = '\0';
+                        }
+
+                        break;
+                    case "EntityOption":
+                        if (tile != null)
+                        {
+                            tile.EntityOnTile.text = '\0'.ToString();
+                            entityGrid[tile.GamePosition.x, tile.GamePosition.y] = '\0';
+                        }
+                        break;
+                    case "BorderOption":
+                        LevelEditorBorderObject border = cell.GetComponent<LevelEditorBorderObject>();
+                        if (border != null)
+                        {
+                            ProccessRemoveBorder(border);
+                        }
+                        break;
                     default:
                         break;
                 }
@@ -146,33 +188,7 @@ namespace SPG.LevelEditor
             PrintCells();
         }
 
-        private void ProccessRemove(LevelEditorCellBase cell)
-        {
-            LevelEditorTileObject tile = cell.GetComponent<LevelEditorTileObject>();
-            foreach (Toggle toggle in toggleGroupManager.ActorSelectionOptions.ActiveToggles())
-            {
-                switch (toggle.name)
-                {
-                    case "TileOption":
-                        if (tile != null)
-                        {
-                            tile.GetComponent<Image>().color = Color.gray;
-                            mapGrid[tile.GamePosition.x, tile.GamePosition.y] = '\0';
-                        }
-
-                        break;
-                    case "EntityOption":
-                        if (tile != null)
-                        {
-                            tile.EntityOnTile.text = '\0'.ToString();
-                            entityGrid[tile.GamePosition.x, tile.GamePosition.y] = '\0';
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
+ 
 
         private void ProcessAddEntity(IEnumerable<Toggle> typeToggles, LevelEditorTileObject cell)
         {
@@ -195,6 +211,24 @@ namespace SPG.LevelEditor
                     default:
                         break;
                 }
+            }
+        }
+
+        public void ProccessAddBorder(LevelEditorBorderObject border)
+        {
+            if (!borderList.Contains(border.BorderBetweenTiles))
+            {
+                borderList.Add(border.BorderBetweenTiles);
+                border.Image.color = Color.magenta;
+            }
+        }
+
+        public void ProccessRemoveBorder(LevelEditorBorderObject border)
+        {
+            if (borderList.Contains(border.BorderBetweenTiles))
+            {
+                borderList.Remove(border.BorderBetweenTiles);
+                border.Image.color = Color.gray;
             }
         }
 

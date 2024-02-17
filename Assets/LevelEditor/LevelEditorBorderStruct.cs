@@ -16,5 +16,14 @@ namespace SPG.LevelEditor
             PositionA = positionA;
             PositionB = positionB;
         }
+
+        /*public override int GetHashCode()
+        {
+            return HashCode.Combine(PositionA, PositionB);
+        }
+        public override bool Equals(object obj)
+        {
+            return base.Equals(obj);
+        }*/
     }
 }
