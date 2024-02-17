@@ -1,11 +1,14 @@
-﻿using UnityEngine;
+﻿using UnityEditorInternal;
+using UnityEngine;
 
 public class CubeActorType : EntityActorType
 {
     public GameColors Color { get; private set; }
-    public CubeActorType(GameColors color) : base(ActorTypeEnum.Cube, true, true)
+    public ILinkedMovement LinkedMovement { get; private set; }
+    public CubeActorType(GameColors color, ILinkedMovement movement) : base(ActorTypeEnum.Cube, true, true)
     {
         Color = color;
+        LinkedMovement = movement;
     }
 
     public void SetCubeColor(ActorObject actor)
@@ -16,7 +19,6 @@ public class CubeActorType : EntityActorType
 
     public override GameDirection GetLinkedDirection(GameDirection originDirection)
     {
-        //return base.GetLinkedDirection(originDirection);
-        return DirectionHelper.GetOppositeDirection(originDirection);
+        return LinkedMovement.GetLinkedMovementVector(originDirection);
     }
 }

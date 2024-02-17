@@ -31,8 +31,8 @@ public class ActorManager
         PlayerType playableType = new PlayerType();
         ActorTypes.Add(playableType.TypeName, playableType);
 
-        CubeColorTypes.Add(Color.red, new CubeActorType(GameColors.Red));
-        CubeColorTypes.Add(Color.blue, new CubeActorType(GameColors.Blue));
+        CubeColorTypes.Add(Color.red, new CubeActorType(GameColors.Red, new LinkedMovementOppositeDirection()));
+        CubeColorTypes.Add(Color.blue, new CubeActorType(GameColors.Blue, new LinkedMovementSameDirection()));
 
         EntityActorType.SetLinkedTypes(CubeColorTypes[Color.red], CubeColorTypes[Color.blue]);
 
