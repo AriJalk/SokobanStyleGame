@@ -14,6 +14,8 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField]
     private Button loadLevelEditorButton;
     [SerializeField]
+    private Button loadCustomLevel;
+    [SerializeField]
     private TMP_InputField inputField;
 
     private LevelBuilder levelBuilder;
@@ -27,6 +29,7 @@ public class MainMenuUI : MonoBehaviour
         loadLevel1Button.onClick.AddListener(LoadLevel1);
         loadLevel2Button.onClick.AddListener(LoadLevel2);
         loadLevelEditorButton.onClick.AddListener(LoadLevelEditor);
+        loadCustomLevel.onClick.AddListener(LoadLevelList);
     }
 
     private void OnDestroy()
@@ -44,6 +47,11 @@ public class MainMenuUI : MonoBehaviour
         load.completed += z => { StaticManager.GameManager.InitializeGameScene(level); };
         
 
+    }
+
+    private void LoadLevelList()
+    {
+        SceneManager.LoadScene(3);
     }
 
     private void LoadLevel1()

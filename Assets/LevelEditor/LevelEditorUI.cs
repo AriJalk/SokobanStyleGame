@@ -18,6 +18,7 @@ namespace SPG.LevelEditor
         public const float TILE_GAP = 2f;
         public UnityEvent<LevelEditorCellBase> CellClickedEvent;
         public UnityEvent<ButtonEvents> ButtonEvent;
+        public TMP_InputField InputField;
         [SerializeField]
         private VerticalLayoutGroup rowsLayoutGroup;
         [SerializeField]
@@ -26,6 +27,7 @@ namespace SPG.LevelEditor
         private Button saveButton;
         [SerializeField]
         private Button exitButton;
+
 
         private LevelEditorCellBase lastCell;
 

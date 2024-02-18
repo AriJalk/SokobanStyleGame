@@ -279,6 +279,8 @@ namespace SPG.LevelEditor
             Debug.Log(json);
             Test_Json();
             GameUtilities.CopyStringToClipboard(json);
+            if(ui.InputField.text != string.Empty)
+                FileManager.SaveLevel(json, ui.InputField.text);
         }
 
         private void ExitEditor()
