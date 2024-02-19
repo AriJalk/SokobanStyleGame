@@ -5,6 +5,6 @@ The game supports built-in levels as well as custom-levels created in the in-gam
 
 Controls:
 
-WASD/Arrows/Numpad : Move Player/s
-Z: Undo last move
-R: Restart level
+WASD/Arrows/Numpad : Move Player/s</br>
+Z: Undo last move</br>
+R: Restart level</br>
