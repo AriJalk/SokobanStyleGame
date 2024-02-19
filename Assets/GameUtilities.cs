@@ -23,6 +23,13 @@ public static class GameUtilities
         child.localScale = Vector3.one;
     }
 
+    public static void SetAnchorsAndResetPosition(RectTransform rectTransform, Vector2 anchorMin, Vector2 anchorMax)
+    {
+        rectTransform.anchorMin = anchorMin;
+        rectTransform.anchorMax = anchorMax;
+        rectTransform.sizeDelta = Vector2.zero;
+    }
+
     public static void ResetAnchors(RectTransform rectTransform)
     {
         rectTransform.anchorMin = Vector2.zero;
