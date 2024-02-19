@@ -175,7 +175,7 @@ namespace SPG.LevelEditor
             GameObject entityOnCell = new GameObject("Text", typeof(TextMeshProUGUI));
 
             GameUtilities.SetParentAndResetPosition(entityOnCell.transform, cell.transform);
-            GameUtilities.ResetAnchors(entityOnCell.GetComponent<RectTransform>());
+            GameUtilities.ResetAnchorsAndSize(entityOnCell.GetComponent<RectTransform>());
             cellObject.EntityOnTile = entityOnCell.GetComponent<TextMeshProUGUI>();
             cell.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, cellSize);
             return cell;

@@ -1,18 +1,19 @@
-﻿using UnityEngine;
-
-public class EntityActorType : ActorType
+﻿/// <summary>
+/// The general entity actor (non tile) type
+/// </summary>
+public class EntityActorTypeBase : ActorType
 {
     public bool CanPush { get; protected set; }
     public bool CanBePushed { get; protected set; }
-    public EntityActorType LinkedActorType { get; protected set; }
+    public EntityActorTypeBase LinkedActorType { get; protected set; }
 
-    public EntityActorType(ActorTypeEnum type, bool canPush, bool canBePushed) : base(type)
+    public EntityActorTypeBase(ActorTypeEnum type, bool canPush, bool canBePushed) : base(type)
     {
         CanPush = canPush;
         CanBePushed = canBePushed;
     }
 
-    public static void SetLinkedTypes(EntityActorType typeA,  EntityActorType typeB)
+    public static void SetLinkedTypes(EntityActorTypeBase typeA,  EntityActorTypeBase typeB)
     {
         if (typeA.LinkedActorType != null)
             typeA.LinkedActorType.LinkedActorType = null;

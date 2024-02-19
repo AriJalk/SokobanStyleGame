@@ -1,14 +1,18 @@
 using System.Collections.Generic;
-using System.IO;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
+public enum LevelMode
+{
+    BuiltIn,
+    Custom,
+}
 public class FileList : MonoBehaviour
 {
+
     UnityEvent<Toggle> toggleChangedEvent;
 
     [SerializeField]
@@ -20,6 +24,11 @@ public class FileList : MonoBehaviour
 
     private string selectedFile = string.Empty;
 
+
+    private void Awake()
+    {
+
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -39,10 +48,23 @@ public class FileList : MonoBehaviour
         block.fadeDuration = 0.1f;
 
         List<string> files;
-        files = FileManager.GetLevelFiles();
+        switch (StaticManager.LevelMode)
+        {
+            case LevelMode.BuiltIn:
+                files = FileManager.GetBuildLevelFiles();
+                break;
+            case LevelMode.Custom:
+                files = FileManager.GetCustomLevelFiles();
+                break;
+            default:
+                files = null;
+                break;
+        }
         foreach (string file in files)
         {
             GameObject fileObject = new GameObject(file, typeof(RectTransform));
+            //TODO: dynamic cell size
+            //fileObject.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 30f);
             GameObject textObject = new GameObject("Text", typeof(TextMeshProUGUI));
             textObject.transform.SetParent(fileObject.transform);
             TextMeshProUGUI text = textObject.GetComponent<TextMeshProUGUI>();
@@ -51,6 +73,7 @@ public class FileList : MonoBehaviour
             text.text = file;
             text.enableAutoSizing = true;
             text.fontSizeMax = 20;
+            
             fileObject.transform.SetParent(layoutGroup);
 
 
@@ -62,11 +85,9 @@ public class FileList : MonoBehaviour
 
             ToggleObject toggleObject = fileObject.AddComponent<ToggleObject>();
             toggleObject.Initialize(toggle, toggleChangedEvent);
-
-
-            //GameUtilities.SetAnchorsAndResetPosition(textObject.GetComponent<RectTransform>(), Vector2.one * 0.1f, Vector2.one * 0.9f);
         }
     }
+
 
     // Update is called once per frame
     void Update()
@@ -80,7 +101,7 @@ public class FileList : MonoBehaviour
         loadButton.onClick.RemoveListener(LoadLevel);
     }
 
-    void OnToggleChanged(Toggle toggle)
+    private void OnToggleChanged(Toggle toggle)
     {
         selectedFile = toggle.name;
     }
@@ -88,15 +109,27 @@ public class FileList : MonoBehaviour
 
     private void LoadLevel()
     {
+        LevelStruct level;
         if (selectedFile != string.Empty)
         {
-            LevelStruct level = FileManager.LoadLevel(selectedFile);
-
-            AsyncOperation load = SceneManager.LoadSceneAsync(1);
-            load.completed += z => { StaticManager.GameManager.InitializeGameScene(level); };
+            switch (StaticManager.LevelMode)
+            {
+                case LevelMode.BuiltIn:
+                    level = FileManager.LoadBuildLevel(selectedFile);
+                    break;
+                case LevelMode.Custom:
+                    level = FileManager.LoadCustomLevel(selectedFile);
+                    break;
+                default:
+                    return;
+            }
+            if(level.TileGrid != null && level.EntityGrid != null && level.BorderList != null)
+            {
+                AsyncOperation load = SceneManager.LoadSceneAsync(1);
+                load.completed += z => { StaticManager.GameManager.InitializeGameScene(level); };
+            }
+            
         }
-
-
-
     }
+
 }

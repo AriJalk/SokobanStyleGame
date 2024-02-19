@@ -2,10 +2,10 @@
 
 public class TileObject : ActorObject
 {
-    public List<BorderStruct> Borders;
+    public List<GameBorderStruct> Borders;
 
     public void Initialize()
     {
-        Borders = new List<BorderStruct>();
+        Borders = new List<GameBorderStruct>();
     }
 }

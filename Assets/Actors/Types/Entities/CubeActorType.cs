@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class CubeActorType : EntityActorType
+public class CubeActorType : EntityActorTypeBase
 {
     public GameColors Color { get; private set; }
     public ILinkedMovement LinkedMovement { get; private set; }

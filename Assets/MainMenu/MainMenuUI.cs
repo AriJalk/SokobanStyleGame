@@ -6,17 +6,11 @@ using UnityEngine.UI;
 public class MainMenuUI : MonoBehaviour
 {
     [SerializeField]
-    private Button loadLevelTextButton;
+    private Button loadBuiltInLevelButton;
     [SerializeField]
-    private Button loadLevel1Button;
-    [SerializeField]
-    private Button loadLevel2Button;
+    private Button loadCustomLevelButtom;
     [SerializeField]
     private Button loadLevelEditorButton;
-    [SerializeField]
-    private Button loadCustomLevel;
-    [SerializeField]
-    private TMP_InputField inputField;
 
     private LevelBuilder levelBuilder;
     
@@ -25,19 +19,16 @@ public class MainMenuUI : MonoBehaviour
     {
         levelBuilder = new LevelBuilder();
 
-        loadLevelTextButton.onClick.AddListener(LoadLevelText);
-        loadLevel1Button.onClick.AddListener(LoadLevel1);
-        loadLevel2Button.onClick.AddListener(LoadLevel2);
+        loadBuiltInLevelButton.onClick.AddListener(LoadBuiltInLevelList);
+        loadCustomLevelButtom.onClick.AddListener(LoadCustomLevelList);
         loadLevelEditorButton.onClick.AddListener(LoadLevelEditor);
-        loadCustomLevel.onClick.AddListener(LoadLevelList);
     }
 
     private void OnDestroy()
     {
-        loadLevelTextButton.onClick.RemoveAllListeners();
-        loadLevel1Button.onClick.RemoveAllListeners();
-        loadLevel2Button.onClick.RemoveAllListeners();
-        loadLevelEditorButton.onClick.RemoveAllListeners();
+        loadBuiltInLevelButton.onClick.RemoveListener(LoadBuiltInLevelList);
+        loadCustomLevelButtom.onClick.RemoveListener(LoadCustomLevelList);
+        loadLevelEditorButton.onClick.RemoveListener(LoadLevelEditor);
     }
 
     private void LoadLevel(LevelStruct level)
@@ -49,18 +40,16 @@ public class MainMenuUI : MonoBehaviour
 
     }
 
-    private void LoadLevelList()
+    private void LoadBuiltInLevelList()
     {
-        SceneManager.LoadScene(3);
+        StaticManager.LevelMode = LevelMode.BuiltIn;
+        AsyncOperation load = SceneManager.LoadSceneAsync(3); 
     }
 
-    private void LoadLevel1()
+    private void LoadCustomLevelList()
     {
-        LoadLevel(levelBuilder.Levels[0]);
-    }
-    private void LoadLevel2()
-    {
-        LoadLevel(levelBuilder.Levels[1]);
+        StaticManager.LevelMode = LevelMode.Custom;
+        AsyncOperation load = SceneManager.LoadSceneAsync(3);
     }
 
     private void LoadLevelEditor()
@@ -68,7 +57,7 @@ public class MainMenuUI : MonoBehaviour
         SceneManager.LoadScene(2);
     }
 
-    private void LoadLevelText()
+    /*private void LoadLevelText()
     {
         if (inputField.text == string.Empty)
             return;
@@ -76,5 +65,5 @@ public class MainMenuUI : MonoBehaviour
         level.DeserializeFields();
         if(level.EntityGrid != null && level.TileGrid != null)   
             LoadLevel(level);
-    }
+    }*/
 }

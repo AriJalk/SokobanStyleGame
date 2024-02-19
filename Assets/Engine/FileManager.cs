@@ -2,42 +2,38 @@
 using System.IO;
 using UnityEngine;
 
+/// <summary>
+/// Handles file loading and saving
+/// </summary>
 public class FileManager
 {
-    private static string levelFolder = System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments) + @"\SPG\Levels\";
-    public static List<string> GetLevelFiles()
+    private static string customLevelsFolder = System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments) + @"\SPG\Levels\";
+    private static string buildLevelsFolder = Application.streamingAssetsPath + @"\Levels\";
+
+
+    private static List<string> GetLevelNamesInFolder(string folder)
     {
         List<string> fileNames = new List<string>();
-        foreach (string file in Directory.GetFiles(levelFolder, "*.lvl"))
+        foreach (string file in Directory.GetFiles(folder, "*.lvl"))
         {
             fileNames.Add(Path.GetFileNameWithoutExtension(file));
         }
         return fileNames;
     }
 
-    public static void SaveLevel(string levelJson, string name)
-    {
-        if (!Directory.Exists(levelFolder))
-        {
-            Directory.CreateDirectory(levelFolder);
-        }
-        using (StreamWriter writetext = new StreamWriter(levelFolder + name + ".lvl"))
-        {
-            writetext.WriteLine(levelJson);
-        }
-    }
 
-    public static LevelStruct LoadLevel(string levelName)
+
+    private static LevelStruct LoadLevelInPath(string levelPath)
     {
         string json = string.Empty;
-        string path = levelFolder + levelName + ".lvl";
+        levelPath += ".lvl";
         LevelStruct levelStruct = new LevelStruct();
-        if(File.Exists(path))
+        if (File.Exists(levelPath))
         {
-            using (StreamReader reader = new StreamReader(path))
+            using (StreamReader reader = new StreamReader(levelPath))
             {
                 string line = string.Empty;
-                while(line != null)
+                while (line != null)
                 {
                     line = reader.ReadLine();
                     json += line;
@@ -47,5 +43,38 @@ public class FileManager
             levelStruct.DeserializeFields();
         }
         return levelStruct;
+    }
+
+    public static List<string> GetBuildLevelFiles()
+    {
+        return GetLevelNamesInFolder(buildLevelsFolder);
+    }
+
+    public static List<string> GetCustomLevelFiles()
+    {
+        return GetLevelNamesInFolder(customLevelsFolder);
+    }
+
+    public static LevelStruct LoadBuildLevel(string levelName)
+    {
+        return LoadLevelInPath(buildLevelsFolder + levelName);
+    }
+
+
+    public static LevelStruct LoadCustomLevel(string levelName)
+    {
+        return LoadLevelInPath(customLevelsFolder + levelName);
+    }
+
+    public static void SaveLevel(string levelJson, string name)
+    {
+        if (!Directory.Exists(customLevelsFolder))
+        {
+            Directory.CreateDirectory(customLevelsFolder);
+        }
+        using (StreamWriter writetext = new StreamWriter(customLevelsFolder + name + ".lvl"))
+        {
+            writetext.WriteLine(levelJson);
+        }
     }
 }

@@ -1,5 +1,8 @@
 ﻿using System.Collections.Generic;
 
+/// <summary>
+/// A set of commands to be performed in a single simultanious move
+/// </summary>
 public struct CommandSet
 {
     List<IActorCommands> commands;
@@ -58,6 +61,10 @@ public struct CommandSet
         }
     }
 
+    /// <summary>
+    /// Returns true/false if the set had at least one successfull command
+    /// </summary>
+    /// <returns></returns>
     public bool IsSetProductive()
     {
         foreach(IActorCommands command in commands)
@@ -68,6 +75,10 @@ public struct CommandSet
         return false;
     }
 
+    /// <summary>
+    /// Returns all actors that were pushed after executing the set
+    /// </summary>
+    /// <returns></returns>
     public List<ActorObject> GetPushedActorObjects()
     {
         List<ActorObject> pushedObjects = new List<ActorObject>();

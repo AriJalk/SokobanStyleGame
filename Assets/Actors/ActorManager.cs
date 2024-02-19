@@ -47,14 +47,15 @@ public class ActorManager
         ActorTypes.Add(playableType.TypeName, playableType);
 
 
-        // Add cubes
+        // Add cubes and add linked movement functionality
         CubeColorTypes.Add(Color.red, new CubeActorType(GameColors.Red, new LinkedMovementOppositeDirection()));
         CubeColorTypes.Add(Color.blue, new CubeActorType(GameColors.Blue, new LinkedMovementSameDirection()));
 
-        EntityActorType.SetLinkedTypes(CubeColorTypes[Color.red], CubeColorTypes[Color.blue]);
+        // Set link between red and blue cubes
+        EntityActorTypeBase.SetLinkedTypes(CubeColorTypes[Color.red], CubeColorTypes[Color.blue]);
 
         // Add sphere
-        EntityActorType sphere = new EntityActorType(ActorTypeEnum.Sphere, false, true);
+        EntityActorTypeBase sphere = new EntityActorTypeBase(ActorTypeEnum.Sphere, false, true);
         ActorTypes.Add(sphere.TypeName, sphere);
 
     }
@@ -82,12 +83,19 @@ public class ActorManager
         }
     }
 
+    // Attach a GameObject with the model defined until the actor type
     private void AttachModel(ActorObject actor)
     {
         GameObject model = prefabManager.RetrievePoolObject(actor.ActorType.TypeName);
         GameUtilities.SetParentAndResetPosition(model.transform, actor.transform);
     }
 
+    /// <summary>
+    /// All actor creation must go through here
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="actorType"></param>
+    /// <returns>An actor of the desired type</returns>
     public T CreateNewActor<T>(ActorType actorType) where T : ActorObject
     {
         T actor = new GameObject().AddComponent<T>();
@@ -98,6 +106,11 @@ public class ActorManager
         return actor;
     }
 
+    /// <summary>
+    /// Create cube actor of a given color
+    /// </summary>
+    /// <param name="color"></param>
+    /// <returns></returns>
     public ActorObject CreateNewCube(Color color)
     {
         ActorObject actor = CreateNewActor<ActorObject>(CubeColorTypes[color]);
@@ -105,7 +118,11 @@ public class ActorManager
         return actor;
     }
 
-
+    /// <summary>
+    /// Takes an actor created in the manager and places it if possible on the given tile
+    /// </summary>
+    /// <param name="actor"></param>
+    /// <param name="tile"></param>
     public void AddActorToTile(ActorObject actor, TileObject tile)
     {
         if (tile != null)
@@ -131,6 +148,11 @@ public class ActorManager
         return null;
     }
 
+    /// <summary>
+    /// Return the actor that is in the position coordinates
+    /// </summary>
+    /// <param name="position"></param>
+    /// <returns></returns>
     public ActorObject GetActor(Vector2Int position)
     {
         if (GameUtilities.IsPositionInBounds(ActorsGrid, position))
@@ -138,6 +160,11 @@ public class ActorManager
         return null;
     }
 
+    /// <summary>
+    /// Move an actor logically in the grid and in the game world according to direction
+    /// </summary>
+    /// <param name="actor"></param>
+    /// <param name="directionVector"></param>
     public void MoveActor(ActorObject actor, Vector2Int directionVector)
     {
         ActorsGrid[actor.GamePosition.x, actor.GamePosition.y] = null;
@@ -147,9 +174,11 @@ public class ActorManager
         actor.transform.localPosition = CalculateLocalPosition(actor);
     }
 
+
     public void ChangeActorType(ActorObject actor, ActorTypeEnum type) 
     {
         DetachModel(actor);
+        actor.ActorType.ActorObjectList.Remove(actor);
         actor.SetActorType(ActorTypes[type]);
         AttachModel(actor);
     }

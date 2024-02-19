@@ -16,10 +16,8 @@ public class MapManager
     private Dictionary<ActorTypeEnum, TileType> tileTypes;
     private Dictionary<Color, GoalTileType> goalTypes;
 
-
-
     public TileObject[,] MapGrid { get; private set; }
-    public Dictionary<BorderStruct, BorderObject> Borders { get; private set; }
+    public Dictionary<GameBorderStruct, BorderObject> Borders { get; private set; }
 
 
     public MapManager(GameManager gameManager)
@@ -30,7 +28,7 @@ public class MapManager
         gridSizeY = gameManager.Grid_Size;
         offset = GameManager.OFFSET;
         MapGrid = new TileObject[gridSizeX, gridSizeY];
-        Borders = new Dictionary<BorderStruct, BorderObject>();
+        Borders = new Dictionary<GameBorderStruct, BorderObject>();
         prefabManager = gameManager.PrefabManager;
         goalTypes = new Dictionary<Color, GoalTileType>();
         tileTypes = new Dictionary<ActorTypeEnum, TileType>();
@@ -44,11 +42,6 @@ public class MapManager
 
         goalTileType = new GoalTileType(GameColors.Blue);
         goalTypes.Add(Color.blue, goalTileType);
-    }
-
-    public void InitializeMapManager(GameManager gameManager)
-    {
-        
     }
 
 
@@ -114,8 +107,14 @@ public class MapManager
     {
         if (tileA != null && tileB != null)
         {
-            BorderObject border = new GameObject("Border").AddComponent<BorderObject>();
-            BorderStruct borderStruct = new BorderStruct(tileA, tileB);
+            GameObject obj = prefabManager.RetrievePoolObject(ActorTypeEnum.Border);
+            if (obj == null)
+            {
+                Debug.Log("border not found");
+                return;
+            }
+            BorderObject border = obj.GetComponent<BorderObject>();
+            GameBorderStruct borderStruct = new GameBorderStruct(tileA, tileB);
             border.Initialize(borderStruct);
             Borders.Add(borderStruct, border);
             //Attach type model

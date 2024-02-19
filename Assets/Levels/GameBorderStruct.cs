@@ -1,12 +1,11 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
-public struct BorderStruct
+public struct GameBorderStruct
 {
     public ActorObject tileA;
     public ActorObject tileB;
 
-    public BorderStruct(ActorObject tileA, ActorObject tileB)
+    public GameBorderStruct(ActorObject tileA, ActorObject tileB)
     {
         this.tileA = tileA;
         this.tileB = tileB;
@@ -23,7 +22,7 @@ public struct BorderStruct
 
     public override bool Equals(object obj)
     {
-        if (obj is BorderStruct other)
+        if (obj is GameBorderStruct other)
         {
             if ((tileA == other.tileA && tileB == other.tileB) ||
                 (tileA == other.tileB && tileB == other.tileA))

@@ -6,11 +6,11 @@ using UnityEngine;
 //TODO: change to actor
 public class BorderObject : MonoBehaviour
 {
-    public BorderStruct BorderStruct { get; private set; }
+    public GameBorderStruct BorderStruct { get; private set; }
 
 
     //TODOL: 
-    public void Initialize(BorderStruct borderStruct)
+    public void Initialize(GameBorderStruct borderStruct)
     {
 
         BorderStruct = borderStruct;

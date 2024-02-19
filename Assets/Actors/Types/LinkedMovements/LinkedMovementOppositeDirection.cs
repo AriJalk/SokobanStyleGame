@@ -4,7 +4,7 @@ public class LinkedMovementOppositeDirection : ILinkedMovement
 {
     public GameDirection GetLinkedMovementVector(GameDirection direction)
     {
-        return DirectionHelper.GetOppositeDirection(direction);
+        return GameUtilities.GetOppositeDirection(direction);
     }
 
 }

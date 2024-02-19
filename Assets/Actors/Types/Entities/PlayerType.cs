@@ -1,8 +1,9 @@
 ﻿using UnityEngine.Events;
 
-public class PlayerType : EntityActorType
+public class PlayerType : EntityActorTypeBase
 {
     public PlayerType() : base(ActorTypeEnum.Player, true, false)
     {
+
     }
 }

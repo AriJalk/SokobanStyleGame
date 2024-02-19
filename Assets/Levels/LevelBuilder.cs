@@ -61,6 +61,10 @@ public class LevelBuilder
         borderStruct = new LevelEditorBorderStruct(new Vector2Int(2, 2), new Vector2Int(2, 1));
         borderList.Add(borderStruct);
 
-        Levels.Add(new LevelStruct(tiles, entities, new List<LevelEditorBorderStruct>(borderList)));
+        LevelStruct level = new LevelStruct(tiles, entities, new List<LevelEditorBorderStruct>(borderList));
+        Levels.Add(level);
+
+        level.SerializeFields();
+        //Debug.Log(JsonUtility.ToJson(level));
     }
 }

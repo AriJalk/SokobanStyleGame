@@ -1,5 +1,8 @@
 ﻿using System.Collections.Generic;
 
+/// <summary>
+/// A single undoable game-turn, comprised of discrete undoable CommandSets that make the result of a single player-command
+/// </summary>
 public class GameTurn
 {
     public List<CommandSet> CommandSets { get; set; }

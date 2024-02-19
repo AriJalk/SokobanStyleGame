@@ -1,8 +1,14 @@
 ﻿using System.Collections.Generic;
 
+/// <summary>
+/// Defines shared behavior across all actors with the same type
+/// </summary>
 public class ActorType
 {
     public ActorTypeEnum TypeName { get; protected set; }
+    /// <summary>
+    /// Actors that belong to the type instance
+    /// </summary>
     public List<ActorObject> ActorObjectList { get; protected set; }
 
     public ActorType(ActorTypeEnum type)

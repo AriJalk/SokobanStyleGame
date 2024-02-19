@@ -1,10 +1,16 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 public static class GameUtilities
 {
     public static Color Red = new Color(0.6698113f, 0.2180046f, 0.2180046f, 1f);
     public static Color Blue = new Color(0.2021627f, 0.3961491f, 0.5566037f, 1f);
+
+    /// <summary>
+    /// Returns if position is in bounds of the grid
+    /// </summary>
+    /// <param name="grid"></param>
+    /// <param name="position"></param>
+    /// <returns></returns>
     public static bool IsPositionInBounds(object[,] grid, Vector2Int position)
     {
         bool result = false;
@@ -16,6 +22,11 @@ public static class GameUtilities
         return result;
     }
 
+    /// <summary>
+    /// Set the child parent and reset position to 0,0,0 and scale to 1,1,1
+    /// </summary>
+    /// <param name="child"></param>
+    /// <param name="parent"></param>
     public static void SetParentAndResetPosition(Transform child, Transform parent)
     {
         child.SetParent(parent);
@@ -30,7 +41,7 @@ public static class GameUtilities
         rectTransform.sizeDelta = Vector2.zero;
     }
 
-    public static void ResetAnchors(RectTransform rectTransform)
+    public static void ResetAnchorsAndSize(RectTransform rectTransform)
     {
         rectTransform.anchorMin = Vector2.zero;
         rectTransform.anchorMax = Vector2.one;
@@ -113,5 +124,66 @@ public static class GameUtilities
     public static Vector2Int EditorToGamePosition(Vector2Int editorPosition, int gridSize)
     {
         return new Vector2Int(editorPosition.x, gridSize - editorPosition.y - 1);
+    }
+
+    public static GameDirection GetOppositeDirection(GameDirection direction)
+    {
+        switch (direction)
+        {
+            case GameDirection.Left:
+                return GameDirection.Right;
+            case GameDirection.Right:
+                return GameDirection.Left;
+            case GameDirection.Up:
+                return GameDirection.Down;
+            case GameDirection.Down:
+                return GameDirection.Up;
+            case GameDirection.Neutral:
+            default:
+                return GameDirection.Neutral;
+        }
+    }
+
+    public static Vector2Int GetDirectionVector(GameDirection direction)
+    {
+        switch (direction)
+        {
+            case GameDirection.Left:
+                return Vector2Int.left;
+            case GameDirection.Right:
+                return Vector2Int.right;
+            case GameDirection.Up:
+                return Vector2Int.up;
+            case GameDirection.Down:
+                return Vector2Int.down;
+            case GameDirection.Neutral:
+            default:
+                return Vector2Int.zero;
+        }
+    }
+
+    public static Vector2Int GetPositionInDirection(Vector2Int origin, GameDirection direction)
+    {
+        Vector2Int position;
+        switch (direction)
+        {
+            case GameDirection.Left:
+                position = origin + Vector2Int.left;
+                break;
+            case GameDirection.Right:
+                position = origin + Vector2Int.right;
+                break;
+            case GameDirection.Up:
+                position = origin + Vector2Int.up;
+                break;
+            case GameDirection.Down:
+                position = origin + Vector2Int.down;
+                break;
+            case GameDirection.Neutral:
+            default:
+                position = origin;
+                break;
+        }
+        return position;
     }
 }

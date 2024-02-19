@@ -1,5 +1,3 @@
-using SPG.LevelEditor;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -8,22 +6,11 @@ using UnityEngine.UI;
 
 namespace SPG.LevelEditor
 {
+    /// <summary>
+    /// Handles level creation by converting the elements in the ui to a LevelStruct json format
+    /// </summary>
     public class LevelEditor : MonoBehaviour
     {
-
-        private enum Toggles
-        {
-            Tile,
-            BasicTile,
-            RedGoal,
-            BlueGoal,
-            Entity,
-            Player,
-            RedCube,
-            BlueCube,
-            Sphere,
-        }
-
         public const short GRID_SIZE = 7;
 
 
@@ -235,7 +222,7 @@ namespace SPG.LevelEditor
         private void SetEntity(LevelEditorTileObject cell, char entityChar)
         {
             cell.EntityOnTile.text = entityChar.ToString();
-            Debug.Log(entityChar.ToString());
+            //Debug.Log(entityChar.ToString());
             entityGrid[cell.GamePosition.x, cell.GamePosition.y] = entityChar;
             PrintCells();
         }
@@ -264,8 +251,8 @@ namespace SPG.LevelEditor
                 map += '\n';
                 entities += "\n";
             }
-            Debug.Log("map\n" + map);
-            Debug.Log("entieis\n" + entities);
+            //Debug.Log("map\n" + map);
+            //Debug.Log("entities\n" + entities);
         }
 
         private void SaveLevel()

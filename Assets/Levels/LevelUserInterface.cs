@@ -3,19 +3,26 @@ using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class UserInterface : MonoBehaviour
+public class LevelUserInterface : MonoBehaviour
 {
     [SerializeField]
     private Transform solvedPanel;
     [SerializeField]
     private Button returnButton;
+    [SerializeField]
+    private Button menuButton;
 
     private UnityEvent solvedEvent;
 
+    private void Start()
+    {
+        menuButton.onClick.AddListener(ReturnToMenu);
+    }
     private void OnDestroy()
     {
         solvedEvent?.RemoveListener(Win);
-        returnButton.onClick.RemoveAllListeners();
+        returnButton.onClick.RemoveListener(ReturnToMenu);
+        menuButton.onClick.RemoveListener(ReturnToMenu);
     }
 
     private void Win()

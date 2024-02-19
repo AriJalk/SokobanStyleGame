@@ -1,8 +1,8 @@
 ﻿using EDBG.Engine.ResourceManagement;
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+// Loads, stores and retreives instances of prefabs
 public class PrefabManager
 {
     private bool isInitialized = false;

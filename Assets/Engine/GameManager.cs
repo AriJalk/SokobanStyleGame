@@ -1,10 +1,12 @@
 
 using SPG.LevelEditor;
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
+/// <summary>
+/// Handles game scene building and gameplay-flow
+/// </summary>
 public class GameManager : MonoBehaviour
 {
     public UnityEvent SolvedEvent;
@@ -17,7 +19,7 @@ public class GameManager : MonoBehaviour
 
     private List<TileObject> goalTiles;
 
-    private UserInterface userInterface;
+    private LevelUserInterface userInterface;
 
 
     // Transforms to load
@@ -69,7 +71,7 @@ public class GameManager : MonoBehaviour
         MapLayerTransform = world.transform.Find("MapLayer");
         ActorLayerTransform = world.transform.Find("ActorLayer").transform;
         UnactiveObjects = GameObject.Find("UnactiveObjects").transform;
-        userInterface = GameObject.Find("UserInterface").GetComponent<UserInterface>();
+        userInterface = GameObject.Find("UserInterface").GetComponent<LevelUserInterface>();
         userInterface.Initialize(SolvedEvent);
         PrefabManager = new PrefabManager(UnactiveObjects);
 
@@ -103,39 +105,48 @@ public class GameManager : MonoBehaviour
             {
                 switch (levelStruct.TileGrid[i, j])
                 {
+                    // Basic Tile
                     case 't':
                         TileObject tile = MapManager.AddTileToMap(new Vector2Int(i, j), ActorTypeEnum.BasicTile);
-                        Debug.Log($"TILE {i},{j} created");
+                        //Debug.Log($"TILE {i},{j} created");
                         break;
+                    // Red Goal
                     case 'r':
                         goalTiles.Add(MapManager.AddGoalTileToMap(new Vector2Int(i, j), Color.red));
                         break;
+                    // Blue Goal
                     case 'b':
                         goalTiles.Add(MapManager.AddGoalTileToMap(new Vector2Int(i, j), Color.blue));
                         break;
+                    // Empty
                     case 'x':
                     default:
                         break;
                 }
                 switch (levelStruct.EntityGrid[i, j])
                 {
+                    // Player
                     case 'p':
                         ActorObject player = ActorManager.CreateNewActor<ActorObject>(ActorManager.ActorTypes[ActorTypeEnum.Player]);
                         ActorManager.AddActorToTile(player, MapManager.MapGrid[i, j]);
                         ActorManager.PlayableActors.Add(player);
                         break;
+                    // Blue Cube
                     case 'b':
                         ActorObject blueCube = ActorManager.CreateNewCube(Color.blue);
                         ActorManager.AddActorToTile(blueCube, MapManager.MapGrid[i, j]);
                         break;
+                    // Red Cube
                     case 'r':
                         ActorObject redCube = ActorManager.CreateNewCube(Color.red);
                         ActorManager.AddActorToTile(redCube, MapManager.MapGrid[i, j]);
                         break;
+                    // Sphere
                     case 's':
                         ActorObject sphere = ActorManager.CreateNewActor<ActorObject>(ActorManager.ActorTypes[ActorTypeEnum.Sphere]);
                         ActorManager.AddActorToTile(sphere, MapManager.MapGrid[i, j]);
                         break;
+                    // Empty
                     case 'x':
                     default:
                         break;
@@ -148,14 +159,17 @@ public class GameManager : MonoBehaviour
             
             Vector2Int positionA = GameUtilities.EditorToGamePosition(border.PositionA, Grid_Size);
             Vector2Int positionB = GameUtilities.EditorToGamePosition(border.PositionB, Grid_Size);
-            Debug.Log($"Border Position A: {border.PositionA} B: {border.PositionB} newA: {positionA} newB{positionB}");
+            //Debug.Log($"Border Position A: {border.PositionA} B: {border.PositionB} newA: {positionA} newB{positionB}");
 
             MapManager.CreateBorder(MapManager.GetTile(positionA), MapManager.GetTile(positionB));
         }
     }
 
 
-
+    /// <summary>
+    /// Create simultanious move command for every player registered under playable-actors
+    /// </summary>
+    /// <param name="direction"></param>
     private void CreateMoveCommandForAllPlayers(GameDirection direction)
     {
         List<CommandSet> commandSets = new List<CommandSet>();
@@ -174,26 +188,27 @@ public class GameManager : MonoBehaviour
                 commandList.Add(command);
             }
         }
-        // Add set to list
+        // Add set to command list so undo is possible and execute
         CommandSet playerSet = new CommandSet(commandList);
         playerSet.ExecuteSet();
         commandSets.Add(playerSet);
 
-        // Add commands to objects linked to type
+        // Add commands to objects pushed by initial push
         List<ActorObject> pushedActors = playerSet.GetPushedActorObjects();
-        List<EntityActorType> pushedTypes = new List<EntityActorType>();
+        List<EntityActorTypeBase> pushedTypes = new List<EntityActorTypeBase>();
         foreach (ActorObject pushedActor in pushedActors)
         {
             if (pushedActor != null)
             {
-                if (!pushedTypes.Contains(pushedActor.ActorType as EntityActorType))
+                if (!pushedTypes.Contains(pushedActor.ActorType as EntityActorTypeBase))
                 {
-                    pushedTypes.Add(pushedActor.ActorType as EntityActorType);
+                    pushedTypes.Add(pushedActor.ActorType as EntityActorTypeBase);
                 }
             }
         }
+        // Add commands to linked actors connected by type to initial pushed type for linked movement
         commandList = new List<IActorCommands>();
-        foreach (EntityActorType pushedType in pushedTypes)
+        foreach (EntityActorTypeBase pushedType in pushedTypes)
         {
             GameDirection linkDirection = pushedType.GetLinkedDirection(direction);
             if (pushedType.LinkedActorType != null)
@@ -212,12 +227,15 @@ public class GameManager : MonoBehaviour
 
 
         turn.CommandSets = commandSets;
+        // If change was made to game state save the contributing commands for undo
         if (turn.IsTurnProductive() == true)
             turnStack.Push(turn);
         CheckWinCondition();
     }
 
-
+    /// <summary>
+    /// Check if all goal tiles have matching cubes on them at the same time
+    /// </summary>
     private void CheckWinCondition()
     {
         bool result = true;
