@@ -32,6 +32,15 @@ namespace SPG.LevelEditor
             cellClickedEvent.AddListener(ProcessCellInput);
             buttonEvent = ui.ButtonEvent;
             buttonEvent.AddListener(ProccessButtonCommand);
+            ui.BuildGrid();
+            if (StaticManager.GameState == GameState.Edit && !StaticManager.LevelName.Equals(string.Empty))
+            {
+                LevelStruct level = FileManager.LoadCustomLevel(StaticManager.LevelName);
+                level.DeserializeFields();
+                ui.LoadLevel(level);
+            }
+            
+                
         }
 
         // Update is called once per frame

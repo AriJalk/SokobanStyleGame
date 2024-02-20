@@ -5,11 +5,7 @@ using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public enum LevelMode
-{
-    BuiltIn,
-    Custom,
-}
+
 public class FileList : MonoBehaviour
 {
 
@@ -21,22 +17,29 @@ public class FileList : MonoBehaviour
     private Transform layoutGroup;
     [SerializeField]
     private Button loadButton;
+    [SerializeField]
+    private Button editButton;
+    [SerializeField]
+    private Button menuButton;
 
     private string selectedFile = string.Empty;
 
 
     private void Awake()
     {
+        toggleChangedEvent = new UnityEvent<Toggle>();
+        toggleChangedEvent.AddListener(OnToggleChanged);
+        loadButton.onClick.AddListener(LoadLevel);
 
+        editButton.onClick.AddListener(EditLevel);
+
+        menuButton.onClick.AddListener(ReturnToMenu);
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        toggleChangedEvent = new UnityEvent<Toggle>();
-        toggleChangedEvent.AddListener(OnToggleChanged);
-
-        loadButton.onClick.AddListener(LoadLevel);
+        
 
         ColorBlock block = new ColorBlock();
         block.normalColor = Color.black;
@@ -48,12 +51,13 @@ public class FileList : MonoBehaviour
         block.fadeDuration = 0.1f;
 
         List<string> files;
-        switch (StaticManager.LevelMode)
+        switch (StaticManager.GameState)
         {
-            case LevelMode.BuiltIn:
+            case GameState.BuiltIn:
                 files = FileManager.GetBuildLevelFiles();
+                editButton.gameObject.SetActive(false);
                 break;
-            case LevelMode.Custom:
+            case GameState.Custom:
                 files = FileManager.GetCustomLevelFiles();
                 break;
             default:
@@ -99,6 +103,8 @@ public class FileList : MonoBehaviour
     {
         toggleChangedEvent?.RemoveAllListeners();
         loadButton.onClick.RemoveListener(LoadLevel);
+        editButton.onClick.RemoveListener(EditLevel);
+        menuButton.onClick.RemoveListener(ReturnToMenu);
     }
 
     private void OnToggleChanged(Toggle toggle)
@@ -112,12 +118,12 @@ public class FileList : MonoBehaviour
         LevelStruct level;
         if (selectedFile != string.Empty)
         {
-            switch (StaticManager.LevelMode)
+            switch (StaticManager.GameState)
             {
-                case LevelMode.BuiltIn:
+                case GameState.BuiltIn:
                     level = FileManager.LoadBuildLevel(selectedFile);
                     break;
-                case LevelMode.Custom:
+                case GameState.Custom:
                     level = FileManager.LoadCustomLevel(selectedFile);
                     break;
                 default:
@@ -130,6 +136,21 @@ public class FileList : MonoBehaviour
             }
             
         }
+    }
+
+    private void ReturnToMenu()
+    {
+        SceneManager.LoadScene(0);
+    }
+
+    private void EditLevel()
+    {
+        if(selectedFile != string.Empty)
+        {
+            StaticManager.LevelName = selectedFile;
+            StaticManager.GameState = GameState.Edit;
+        }
+        SceneManager.LoadScene(2);
     }
 
 }

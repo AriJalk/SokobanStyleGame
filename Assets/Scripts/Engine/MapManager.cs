@@ -61,6 +61,7 @@ public class MapManager
             TileObject tile = actorManager.CreateNewActor<TileObject>(tileTypes[type]);
             if (tile != null)
             {
+                tile.name = $"Tile[{position.x},{position.y}]";
                 tile.SetGamePosition(position);
                 tile.transform.SetParent(mapLayerTransform);
                 tile.transform.localPosition = new Vector3(position.x + position.x * offset, 0, position.y + position.y * offset);

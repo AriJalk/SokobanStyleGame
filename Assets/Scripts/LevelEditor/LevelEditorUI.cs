@@ -34,7 +34,7 @@ namespace SPG.LevelEditor
         private void Awake()
         {
             //BuildGrid();
-            BuildGridNew();
+            //BuildGridNew();
             CellClickedEvent = new UnityEvent<LevelEditorCellBase>();
             ButtonEvent = new UnityEvent<ButtonEvents>();
             //Set to number outside of grid
@@ -53,7 +53,7 @@ namespace SPG.LevelEditor
             {
                 //Paint with selected tile / entity
                 Transform cell = UIRaycaster.Raycast(Input.mousePosition, LayerMask.GetMask("GridCell"));
-                if(cell != null)
+                if (cell != null)
                 {
                     ProcessCell(cell);
                 }
@@ -72,7 +72,7 @@ namespace SPG.LevelEditor
         }
 
 
-        private void BuildGridNew()
+        public void BuildGrid()
         {
 
             GameUtilities.SquareAnchors(gridTransform, gridTransform.parent);
@@ -83,8 +83,14 @@ namespace SPG.LevelEditor
 
             float cellSize = CalculateCellSize();
 
-            for (int i = 0; i < LevelEditor.GRID_SIZE; i++)
+            for (int i = LevelEditor.GRID_SIZE - 1; i >= 0; i--)
             {
+
+                if (i < LevelEditor.GRID_SIZE - 1)
+                {
+                    GameObject borderRow = CreateBorderRow(i, cellSize);
+                }
+
                 GameObject row = CreateRowObject(i, cellSize);
                 for (int j = 0; j < LevelEditor.GRID_SIZE; j++)
                 {
@@ -94,15 +100,26 @@ namespace SPG.LevelEditor
                     // CreateBorder
                     if (j < LevelEditor.GRID_SIZE - 1)
                     {
-                        LevelEditorBorderObject borderObject = CreateBorder(new Vector2Int(j, i), new Vector2Int(j + 1, i), cellSize, row.transform, RectTransform.Axis.Vertical);
+                        LevelEditorBorderObject borderObject = CreateBorder(new Vector2Int(j, i), new Vector2Int(j + 1, i),
+                            cellSize, row.transform, RectTransform.Axis.Vertical);
                     }
                 }
-                if (i < LevelEditor.GRID_SIZE - 1)
-                {
-                    GameObject borderRow = CreateBorderRow(i, cellSize);
-                }
+
             }
         }
+
+        public void LoadLevel(LevelStruct level)
+        {
+            for(int i = LevelEditor.GRID_SIZE -1; i >= 0; i--)
+            {
+                for(int j =  LevelEditor.GRID_SIZE - 1; j >= 0; j--)
+                    foreach(char tile in level.TileGrid)
+                    {
+                        
+                    }
+            }
+        }
+
 
         private GameObject CreateBorderRow(int rowIndex, float cellSize)
         {
@@ -168,8 +185,7 @@ namespace SPG.LevelEditor
             image.color = Color.gray;
 
             LevelEditorTileObject cellObject = cell.AddComponent<LevelEditorTileObject>();
-            // Transform so that the result matrix is rotated 90 degress in data to corespond to X,Y
-            cellObject.GamePosition = new Vector2Int(x, LevelEditor.GRID_SIZE - y - 1);
+            cellObject.GamePosition = new Vector2Int(x, y);
             GameUtilities.SetParentAndResetPosition(cell.transform, parent);
 
             GameObject entityOnCell = new GameObject("Text", typeof(TextMeshProUGUI));
@@ -222,16 +238,16 @@ namespace SPG.LevelEditor
         private void ProcessCell(Transform cell)
         {
             LevelEditorCellBase cellObject = cell.GetComponent<LevelEditorCellBase>();
-            if(cellObject != null)
+            if (cellObject != null)
             {
                 bool isValid = true;
                 // Initial click
-                if(lastCell == null)
+                if (lastCell == null)
                 {
                     lastCell = cellObject;
                 }
                 // Follow up
-                else if(cellObject != lastCell && cellObject.GetType() == lastCell.GetType())
+                else if (cellObject != lastCell && cellObject.GetType() == lastCell.GetType())
                 {
                     lastCell = cellObject;
                 }
@@ -240,7 +256,7 @@ namespace SPG.LevelEditor
                     isValid = false;
                     lastCell = null;
                 }
-                if(isValid)
+                if (isValid)
                 {
                     CellClickedEvent?.Invoke(cellObject);
                 }

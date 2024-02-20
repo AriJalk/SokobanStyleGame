@@ -47,7 +47,8 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
-        gameInputManager.Listen();
+        if(StaticManager.GameState == GameState.GameLevel)
+            gameInputManager.Listen();
         
     }
     private void OnDestroy()
@@ -58,6 +59,7 @@ public class GameManager : MonoBehaviour
 
     public void InitializeGameScene(LevelStruct levelStruct)
     {
+        StaticManager.GameState = GameState.GameLevel;
         turnStack = new Stack<GameTurn>();
         Grid_Size = levelStruct.GridSize;
         GameObject world = GameObject.Find("World");
@@ -156,12 +158,8 @@ public class GameManager : MonoBehaviour
         // Build border
         foreach (LevelEditorBorderStruct border in levelStruct.BorderList)
         {
-            
-            Vector2Int positionA = GameUtilities.EditorToGamePosition(border.PositionA, Grid_Size);
-            Vector2Int positionB = GameUtilities.EditorToGamePosition(border.PositionB, Grid_Size);
-            //Debug.Log($"Border Position A: {border.PositionA} B: {border.PositionB} newA: {positionA} newB{positionB}");
 
-            MapManager.CreateBorder(MapManager.GetTile(positionA), MapManager.GetTile(positionB));
+            MapManager.CreateBorder(MapManager.GetTile(border.PositionA), MapManager.GetTile(border.PositionB));
         }
     }
 

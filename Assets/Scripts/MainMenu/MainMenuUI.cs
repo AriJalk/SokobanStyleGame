@@ -22,6 +22,8 @@ public class MainMenuUI : MonoBehaviour
         loadBuiltInLevelButton.onClick.AddListener(LoadBuiltInLevelList);
         loadCustomLevelButtom.onClick.AddListener(LoadCustomLevelList);
         loadLevelEditorButton.onClick.AddListener(LoadLevelEditor);
+
+        StaticManager.GameState = GameState.Menu;
     }
 
     private void OnDestroy()
@@ -42,13 +44,13 @@ public class MainMenuUI : MonoBehaviour
 
     private void LoadBuiltInLevelList()
     {
-        StaticManager.LevelMode = LevelMode.BuiltIn;
+        StaticManager.GameState = GameState.BuiltIn;
         AsyncOperation load = SceneManager.LoadSceneAsync(3); 
     }
 
     private void LoadCustomLevelList()
     {
-        StaticManager.LevelMode = LevelMode.Custom;
+        StaticManager.GameState = GameState.Custom;
         AsyncOperation load = SceneManager.LoadSceneAsync(3);
     }
 

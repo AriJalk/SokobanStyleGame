@@ -1,4 +1,12 @@
-﻿public enum GameDirection
+﻿public enum GameState
+{
+    Menu,
+    BuiltIn,
+    Custom,
+    Edit,
+    GameLevel,
+}
+public enum GameDirection
 {
     Left,
     Right,
@@ -37,5 +45,21 @@ public enum ActorTypeEnum
     GoalTile,
     GoalTileRed,
     Player,
+    Sphere,
+}
+
+public enum TileTypeEnum
+{
+    Empty,
+    BasicTile,
+    RedGoalTile,
+    BlueGoalTile,
+}
+
+public enum EntityTypeEnum
+{
+    Player,
+    RedCube,
+    BlueCube,
     Sphere,
 }
