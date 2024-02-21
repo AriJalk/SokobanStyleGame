@@ -66,7 +66,7 @@ public class FileManager
         return LoadLevelInPath(customLevelsFolder + levelName);
     }
 
-    public static void SaveLevel(string levelJson, string name)
+    public static void SaveCustomLevel(string levelJson, string name)
     {
         if (!Directory.Exists(customLevelsFolder))
         {
@@ -75,6 +75,15 @@ public class FileManager
         using (StreamWriter writetext = new StreamWriter(customLevelsFolder + name + ".lvl"))
         {
             writetext.WriteLine(levelJson);
+        }
+    }
+
+    public static void DeleteCustomLevel(string name)
+    {
+        string path = customLevelsFolder + name + ".lvl";
+        if (File.Exists(path))
+        {
+            File.Delete(path);
         }
     }
 }

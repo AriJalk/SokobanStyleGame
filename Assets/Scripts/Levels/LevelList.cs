@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 
-public class FileList : MonoBehaviour
+public class LevelList : MonoBehaviour
 {
 
     UnityEvent<Toggle> toggleChangedEvent;
@@ -21,26 +21,31 @@ public class FileList : MonoBehaviour
     private Button editButton;
     [SerializeField]
     private Button menuButton;
+    [SerializeField]
+    private Button deleteButton;
 
     private string selectedFile = string.Empty;
+    private Dictionary<string, GameObject> fileObjectDictionary;
 
 
     private void Awake()
     {
         toggleChangedEvent = new UnityEvent<Toggle>();
         toggleChangedEvent.AddListener(OnToggleChanged);
+
         loadButton.onClick.AddListener(LoadLevel);
-
         editButton.onClick.AddListener(EditLevel);
-
         menuButton.onClick.AddListener(ReturnToMenu);
+        deleteButton.onClick.AddListener(DeleteLevel);
+
+
     }
 
     // Start is called before the first frame update
     void Start()
     {
         
-
+        fileObjectDictionary = new Dictionary<string, GameObject>();
         ColorBlock block = new ColorBlock();
         block.normalColor = Color.black;
         block.highlightedColor = new Color(238f / 255f, 233f / 255f, 78f / 255f);
@@ -56,6 +61,7 @@ public class FileList : MonoBehaviour
             case GameState.BuiltIn:
                 files = FileManager.GetBuildLevelFiles();
                 editButton.gameObject.SetActive(false);
+                deleteButton.gameObject.SetActive(false);
                 break;
             case GameState.Custom:
                 files = FileManager.GetCustomLevelFiles();
@@ -67,6 +73,7 @@ public class FileList : MonoBehaviour
         foreach (string file in files)
         {
             GameObject fileObject = new GameObject(file, typeof(RectTransform));
+            fileObjectDictionary.Add(file, fileObject );
             //TODO: dynamic cell size
             //fileObject.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 30f);
             GameObject textObject = new GameObject("Text", typeof(TextMeshProUGUI));
@@ -105,6 +112,7 @@ public class FileList : MonoBehaviour
         loadButton.onClick.RemoveListener(LoadLevel);
         editButton.onClick.RemoveListener(EditLevel);
         menuButton.onClick.RemoveListener(ReturnToMenu);
+        deleteButton.onClick.RemoveListener(DeleteLevel);
     }
 
     private void OnToggleChanged(Toggle toggle)
@@ -151,6 +159,19 @@ public class FileList : MonoBehaviour
             StaticManager.GameState = GameState.Edit;
         }
         SceneManager.LoadScene(2);
+    }
+
+    private void DeleteLevel()
+    {
+        if (selectedFile != string.Empty)
+        {
+            GameObject levelObject = fileObjectDictionary[selectedFile];
+            fileObjectDictionary.Remove(selectedFile);
+            Destroy(levelObject);
+            FileManager.DeleteCustomLevel(selectedFile);
+            selectedFile = string.Empty;
+
+        }
     }
 
 }
