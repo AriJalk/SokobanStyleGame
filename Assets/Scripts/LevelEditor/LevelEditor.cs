@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -19,9 +20,9 @@ namespace SPG.LevelEditor
         [SerializeField]
         private ToggleGroupManager toggleGroupManager;
 
-        private char[,] mapGrid = new char[GRID_SIZE, GRID_SIZE];
+        private char[,] tileGrid = new char[GRID_SIZE, GRID_SIZE];
         private char[,] entityGrid = new char[GRID_SIZE, GRID_SIZE];
-        private List<LevelEditorBorderStruct> borderList = new List<LevelEditorBorderStruct>();
+        private List<LevelEditorBorderStruct> borderList;
 
         private UnityEvent<LevelEditorCellBase> cellClickedEvent;
         private UnityEvent<ButtonEvents> buttonEvent;
@@ -33,14 +34,31 @@ namespace SPG.LevelEditor
             buttonEvent = ui.ButtonEvent;
             buttonEvent.AddListener(ProccessButtonCommand);
             ui.BuildGrid();
+            borderList = new List<LevelEditorBorderStruct>();
             if (StaticManager.GameState == GameState.Edit && !StaticManager.LevelName.Equals(string.Empty))
             {
                 LevelStruct level = FileManager.LoadCustomLevel(StaticManager.LevelName);
+                ui.InputField.text = StaticManager.LevelName;
                 level.DeserializeFields();
-                ui.LoadLevel(level);
+                tileGrid = level.TileGrid;
+                entityGrid = level.EntityGrid;
+                for (int i = 0; i < GRID_SIZE; i++)
+                {
+                    for (int j = 0; j < GRID_SIZE; j++)
+                    {
+                        SetTile(ui.TileObjectGrid[j, i], tileGrid[j, i]);
+                        SetEntity(ui.TileObjectGrid[j, i], entityGrid[j, i]);
+                    }
+                }
+                for (int i = 0; i < level.BorderList.Count; i++)
+                {
+                    LevelEditorBorderStruct border = level.BorderList[i];
+                    ProccessAddBorder(ui.BorderDictionary[border]);
+                }
+
             }
-            
-                
+
+
         }
 
         // Update is called once per frame
@@ -115,7 +133,7 @@ namespace SPG.LevelEditor
                         if (tile != null)
                         {
                             tile.GetComponent<Image>().color = Color.gray;
-                            mapGrid[tile.GamePosition.x, tile.GamePosition.y] = '\0';
+                            tileGrid[tile.GamePosition.x, tile.GamePosition.y] = '\0';
                         }
 
                         break;
@@ -160,9 +178,11 @@ namespace SPG.LevelEditor
             }
         }
 
+
+
         private void SetTile(LevelEditorTileObject cell, char tileType)
         {
-            mapGrid[cell.GamePosition.x, cell.GamePosition.y] = tileType;
+            tileGrid[cell.GamePosition.x, cell.GamePosition.y] = tileType;
             Image image = cell.GetComponent<Image>();
             if (image != null)
             {
@@ -184,7 +204,7 @@ namespace SPG.LevelEditor
             PrintCells();
         }
 
- 
+
 
         private void ProcessAddEntity(IEnumerable<Toggle> typeToggles, LevelEditorTileObject cell)
         {
@@ -230,8 +250,11 @@ namespace SPG.LevelEditor
 
         private void SetEntity(LevelEditorTileObject cell, char entityChar)
         {
+            if (entityChar == 'x')
+                entityChar = '\0';
             cell.EntityOnTile.text = entityChar.ToString();
             //Debug.Log(entityChar.ToString());
+            
             entityGrid[cell.GamePosition.x, cell.GamePosition.y] = entityChar;
             PrintCells();
         }
@@ -244,11 +267,11 @@ namespace SPG.LevelEditor
             {
                 for (int j = 0; j < GRID_SIZE; j++)
                 {
-                    if (mapGrid[i, j] == '\0')
+                    if (tileGrid[i, j] == '\0')
                         map += "x";
                     else
                     {
-                        map += mapGrid[i, j];
+                        map += tileGrid[i, j];
                     }
                     if (entityGrid[i, j] == '\0')
                         entities += "x";
@@ -269,13 +292,12 @@ namespace SPG.LevelEditor
             //borderList.Add(new LevelEditorBorderStruct(Vector2Int.zero, Vector2Int.up));
             //borderList.Add(new LevelEditorBorderStruct(new Vector2Int(3,3), new Vector2Int(4,3)));
 
-            LevelStruct levelStruct = new LevelStruct(mapGrid, entityGrid, borderList);
+            LevelStruct levelStruct = new LevelStruct(tileGrid, entityGrid, borderList);
             levelStruct.SerializeFields();
             string json = JsonUtility.ToJson(levelStruct);
-            Debug.Log(json);
-            Test_Json();
-            GameUtilities.CopyStringToClipboard(json);
-            if(ui.InputField.text != string.Empty)
+            //Test_Json();
+            //GameUtilities.CopyStringToClipboard(json);
+            if (ui.InputField.text != string.Empty)
                 FileManager.SaveLevel(json, ui.InputField.text);
         }
 
@@ -286,7 +308,7 @@ namespace SPG.LevelEditor
 
         private bool Test_Json()
         {
-            LevelStruct levelStruct = new LevelStruct(mapGrid, entityGrid, borderList);
+            LevelStruct levelStruct = new LevelStruct(tileGrid, entityGrid, borderList);
             levelStruct.SerializeFields();
             string originalJson = JsonUtility.ToJson(levelStruct);
             Debug.Log("Original JSON\n" + originalJson);

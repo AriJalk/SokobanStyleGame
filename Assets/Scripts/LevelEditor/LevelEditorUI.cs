@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -28,8 +29,11 @@ namespace SPG.LevelEditor
         [SerializeField]
         private Button exitButton;
 
+        private LevelEditorCellBase lastPaintedCell;
 
-        private LevelEditorCellBase lastCell;
+        public LevelEditorTileObject[,] TileObjectGrid;
+        public Dictionary<LevelEditorBorderStruct, LevelEditorBorderObject> BorderDictionary;
+        
 
         private void Awake()
         {
@@ -61,7 +65,7 @@ namespace SPG.LevelEditor
 
             if (Input.GetMouseButtonUp(0))
             {
-                lastCell = null;
+                lastPaintedCell = null;
             }
         }
 
@@ -74,7 +78,8 @@ namespace SPG.LevelEditor
 
         public void BuildGrid()
         {
-
+            BorderDictionary = new Dictionary<LevelEditorBorderStruct, LevelEditorBorderObject>();
+            TileObjectGrid = new LevelEditorTileObject[LevelEditor.GRID_SIZE,LevelEditor.GRID_SIZE];
             GameUtilities.SquareAnchors(gridTransform, gridTransform.parent);
             //UpdateRectSize(gridTransform);
             gridTransform.sizeDelta = Vector2.zero;
@@ -96,12 +101,13 @@ namespace SPG.LevelEditor
                 {
                     // Create Cell
                     GameObject cellObject = CreateCellObject(j, i, row.transform, cellSize);
-
+                    TileObjectGrid[j, i] = cellObject.GetComponent<LevelEditorTileObject>();
                     // CreateBorder
                     if (j < LevelEditor.GRID_SIZE - 1)
                     {
-                        LevelEditorBorderObject borderObject = CreateBorder(new Vector2Int(j, i), new Vector2Int(j + 1, i),
-                            cellSize, row.transform, RectTransform.Axis.Vertical);
+                        Tuple<Vector2Int, Vector2Int> borderBetween = new Tuple<Vector2Int, Vector2Int>(new Vector2Int(j, i), new Vector2Int(j + 1, i));
+                        LevelEditorBorderObject borderObject = CreateBorder(borderBetween.Item1, borderBetween.Item2, cellSize,
+                            row.transform, RectTransform.Axis.Vertical);
                     }
                 }
 
@@ -154,6 +160,7 @@ namespace SPG.LevelEditor
             borderObject.RectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, borderSize);
             gameObject.layer = LayerMask.NameToLayer("GridCell");
             borderObject.BorderBetweenTiles = new LevelEditorBorderStruct(positionA, positionB);
+            BorderDictionary.Add(borderObject.BorderBetweenTiles, borderObject);
             return borderObject;
         }
 
@@ -242,19 +249,19 @@ namespace SPG.LevelEditor
             {
                 bool isValid = true;
                 // Initial click
-                if (lastCell == null)
+                if (lastPaintedCell == null)
                 {
-                    lastCell = cellObject;
+                    lastPaintedCell = cellObject;
                 }
                 // Follow up
-                else if (cellObject != lastCell && cellObject.GetType() == lastCell.GetType())
+                else if (cellObject != lastPaintedCell && cellObject.GetType() == lastPaintedCell.GetType())
                 {
-                    lastCell = cellObject;
+                    lastPaintedCell = cellObject;
                 }
                 else
                 {
                     isValid = false;
-                    lastCell = null;
+                    lastPaintedCell = null;
                 }
                 if (isValid)
                 {
