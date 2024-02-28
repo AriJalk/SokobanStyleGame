@@ -1,6 +1,4 @@
-﻿
-
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 namespace SPG.LevelEditor
@@ -9,12 +7,5 @@ namespace SPG.LevelEditor
     {
         public Image Image { get; set; }
         public RectTransform RectTransform { get; set; }
-        public GameObject Object
-        {
-            get
-            {
-                return this.gameObject;
-            }
-        }
     }
 }

@@ -88,6 +88,7 @@ namespace SPG.LevelEditor
 
             float cellSize = CalculateCellSize();
 
+            // Build grid
             for (int i = LevelEditor.GRID_SIZE - 1; i >= 0; i--)
             {
 
@@ -156,7 +157,7 @@ namespace SPG.LevelEditor
             borderObject.RectTransform = borderObject.GetComponent<RectTransform>();
             GameUtilities.SetParentAndResetPosition(borderObject.transform, parent);
             AddEmptyImageComponent(borderObject);
-            float borderSize = (axis == RectTransform.Axis.Horizontal ? cellSize : cellSize / 4f);
+            float borderSize = (axis == RectTransform.Axis.Horizontal ? cellSize : cellSize / BORDER_SCALE);
             borderObject.RectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, borderSize);
             gameObject.layer = LayerMask.NameToLayer("GridCell");
             borderObject.BorderBetweenTiles = new LevelEditorBorderStruct(positionA, positionB);
@@ -187,6 +188,7 @@ namespace SPG.LevelEditor
         {
             GameObject cell = new GameObject($"Cell_[{x},{y}]", typeof(RectTransform));
             cell.layer = LayerMask.NameToLayer("GridCell");
+            // Add image
             Image image = cell.AddComponent<Image>();
             image.sprite = Resources.Load<Sprite>("Empty");
             image.color = Color.gray;
@@ -224,6 +226,7 @@ namespace SPG.LevelEditor
         {
             Debug.Log("LayerMask binary: " + Convert.ToString(layerMask.value, 2));
         }
+
         private void SaveClicked()
         {
             ButtonEvent?.Invoke(ButtonEvents.Save);
@@ -231,15 +234,6 @@ namespace SPG.LevelEditor
         private void ExitClicked()
         {
             ButtonEvent?.Invoke(ButtonEvents.Exit);
-        }
-        private void UpdateRectSize(RectTransform rectTransform)
-        {
-
-            float smallerEdge = Mathf.Min(rectTransform.rect.width, rectTransform.rect.height);
-
-            rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, smallerEdge);
-            rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, smallerEdge);
-
         }
 
         private void ProcessCell(Transform cell)

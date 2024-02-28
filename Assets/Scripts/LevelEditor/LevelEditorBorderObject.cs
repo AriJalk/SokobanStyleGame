@@ -1,6 +1,4 @@
-﻿using System;
-using UnityEngine;
-
+﻿
 namespace SPG.LevelEditor
 {
     public class LevelEditorBorderObject : LevelEditorCellBase

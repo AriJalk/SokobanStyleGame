@@ -5,7 +5,9 @@ using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-
+/// <summary>
+/// Level list of either prebuilt or custom levels
+/// </summary>
 public class LevelList : MonoBehaviour
 {
 

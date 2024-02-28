@@ -73,6 +73,10 @@ namespace SPG.LevelEditor
             buttonEvent?.RemoveListener(ProccessButtonCommand);
         }
 
+        /// <summary>
+        /// Main input management method
+        /// </summary>
+        /// <param name="cell"></param>
         private void ProcessCellInput(LevelEditorCellBase cell)
         {
             IEnumerable<Toggle> paintModeToggle = toggleGroupManager.PaintModeToggleOptions.ActiveToggles();
@@ -93,6 +97,11 @@ namespace SPG.LevelEditor
             }
         }
 
+        /// <summary>
+        /// Main Add method
+        /// </summary>
+        /// <param name="actorToggles"></param>
+        /// <param name="cell"></param>
         private void ProcessAdd(IEnumerable<Toggle> actorToggles, LevelEditorCellBase cell)
         {
             LevelEditorTileObject tile = cell.GetComponent<LevelEditorTileObject>();
@@ -122,6 +131,10 @@ namespace SPG.LevelEditor
             }
         }
 
+        /// <summary>
+        /// Main Remove Method
+        /// </summary>
+        /// <param name="cell"></param>
         private void ProccessRemove(LevelEditorCellBase cell)
         {
             LevelEditorTileObject tile = cell.GetComponent<LevelEditorTileObject>();
@@ -306,7 +319,26 @@ namespace SPG.LevelEditor
             SceneManager.LoadScene(0);
         }
 
-        private bool Test_Json()
+        private void ProccessButtonCommand(ButtonEvents clickedEvent)
+        {
+            switch (clickedEvent)
+            {
+                case ButtonEvents.Save:
+                    SaveLevel();
+                    break;
+                case ButtonEvents.Exit:
+                    ExitEditor();
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Check if saved level matches loaded level
+        /// </summary>
+        /// <returns></returns>
+        private bool TestJson()
         {
             LevelStruct levelStruct = new LevelStruct(tileGrid, entityGrid, borderList);
             levelStruct.SerializeFields();
@@ -327,21 +359,6 @@ namespace SPG.LevelEditor
             }
             Debug.Log("Level JSON not equal");
             return false;
-        }
-
-        private void ProccessButtonCommand(ButtonEvents clickedEvent)
-        {
-            switch (clickedEvent)
-            {
-                case ButtonEvents.Save:
-                    SaveLevel();
-                    break;
-                case ButtonEvents.Exit:
-                    ExitEditor();
-                    break;
-                default:
-                    break;
-            }
         }
 
     }

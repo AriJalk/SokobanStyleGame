@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-public class LinkedMovementSameDirection : ILinkedMovement
+﻿public class LinkedMovementSameDirection : ILinkedMovement
 {
     public GameDirection GetLinkedMovementVector(GameDirection direction)
     {

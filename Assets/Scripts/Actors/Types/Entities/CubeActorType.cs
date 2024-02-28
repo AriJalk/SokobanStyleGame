@@ -16,6 +16,11 @@ public class CubeActorType : EntityActorTypeBase
         meshRenderer.material = Resources.Load<Material>(Color + "Material");
     }
 
+    /// <summary>
+    /// How the cube should respond to linked movement
+    /// </summary>
+    /// <param name="originDirection"></param>
+    /// <returns></returns>
     public override GameDirection GetLinkedDirection(GameDirection originDirection)
     {
         return LinkedMovement.GetLinkedMovementVector(originDirection);

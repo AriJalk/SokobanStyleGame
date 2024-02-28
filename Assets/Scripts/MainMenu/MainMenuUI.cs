@@ -1,5 +1,4 @@
-﻿using TMPro;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -11,13 +10,10 @@ public class MainMenuUI : MonoBehaviour
     private Button loadCustomLevelButtom;
     [SerializeField]
     private Button loadLevelEditorButton;
-
-    private LevelBuilder levelBuilder;
     
 
     private void Awake()
     {
-        levelBuilder = new LevelBuilder();
 
         loadBuiltInLevelButton.onClick.AddListener(LoadBuiltInLevelList);
         loadCustomLevelButtom.onClick.AddListener(LoadCustomLevelList);
@@ -33,14 +29,6 @@ public class MainMenuUI : MonoBehaviour
         loadLevelEditorButton.onClick.RemoveListener(LoadLevelEditor);
     }
 
-    private void LoadLevel(LevelStruct level)
-    {
-
-        AsyncOperation load = SceneManager.LoadSceneAsync(1);
-        load.completed += z => { StaticManager.GameManager.InitializeGameScene(level); };
-        
-
-    }
 
     private void LoadBuiltInLevelList()
     {

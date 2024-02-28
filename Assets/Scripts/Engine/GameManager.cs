@@ -57,6 +57,10 @@ public class GameManager : MonoBehaviour
         SolvedEvent.RemoveAllListeners();
     }
 
+    /// <summary>
+    /// Initialize game scene from a LevelStruct
+    /// </summary>
+    /// <param name="levelStruct"></param>
     public void InitializeGameScene(LevelStruct levelStruct)
     {
         StaticManager.GameState = GameState.GameLevel;
@@ -96,7 +100,10 @@ public class GameManager : MonoBehaviour
         BuildLevel(levelStruct);
     }
 
-
+    /// <summary>
+    /// Convert LevelStruct to GameObjects in the world
+    /// </summary>
+    /// <param name="levelStruct"></param>
     private void BuildLevel(LevelStruct levelStruct)
     {
         goalTiles = new List<TileObject>();
