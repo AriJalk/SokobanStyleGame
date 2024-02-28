@@ -1,7 +1,6 @@
 # SimplePuzzleGame
 
-Simple turn-based Sokoban-style game developed in Unity (C#) with possibility for modular components with entanglement-like behavior and interaction between objects of different types/colors.
-The game supports built-in levels as well as custom-levels created in the in-game level editor.
+Developed within a 2-week constraint, this simple turn-based Sokoban-style game in Unity (C#) offers modular components with entanglement-like behavior and interaction between objects of different types/colors. The game supports built-in levels as well as custom levels created in the in-game level editor, which features intuitive 'painting' tools for level design.
 
 Controls:
 
