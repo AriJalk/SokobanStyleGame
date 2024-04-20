@@ -13,7 +13,7 @@ Developed within a 2-week constraint, this simple turn-based Sokoban-style game 
 * Pushing objects can cascade to neighbor objects depending on their properties, also blue cubes are linked to red cubes in such a way that a push of a single blue cube will push all red cubes in the level in the same direction. Red does the same but blue cubes will be pushed in the opposite direction. These kinds of interactions are easily customizable and expandable in code.
 * Multiple player actors can exist in the scene at the same time, and they all respond to the same input simultaniously.
 * Borders prevent movement between tiles (1-way borders were a potential mechanic that would be easy to implement, but I had to focus on more important aspects).
-* Level-Editor supports the previously mentioned elements and saves the level in the json format used to load and play the levels, adding and deleting elements can be done by clicking or dragging the mouse to 'paint' (I wanted to move the editor architecture to command based to support undo like the game itself, but it wouldn't fit under the time constraint, so the only way to undo is to delete or replace the spot).
+* Level-Editor supports the previously mentioned elements and saves the level in the json format used to load and play the levels, adding and deleting elements can be done by clicking or dragging the mouse to 'paint' the tiles.
 
 ## Pictures
 
@@ -42,8 +42,8 @@ Level Example
 
 ## Main Goals for development:
 * A fully functional game with modular push mechanics and a level editor.
-* Make things relatively lightweight, makes objects behavior and instancing shared as much as possible (used flyweight/type object pattern for this) so large levels will remain lightweight.
-* The game must have undo and instant restart feature (solved with the Command pattern) 
+* Make things relatively lightweight, makes objects behavior and instancing shared as much as possible (used flyweight/type object pattern for this) so large levels should remain lightweight.
+* The game must have undo and instant restart feature (solved with the Command pattern).
 
 ## Challenges
 * Making the push mechanic consistent with all edge cases and easily controlled in a chain of pushes, solved by defining each type .
@@ -54,4 +54,4 @@ Level Example
 ## What I would've done differently:
 * More levels, most of the 2 weeks went to making sure everything works correctly, not leaving enough time to build enough levels to really explore the possibilities of the mechanics (another block color with different properties could be easily added with not much coding with how the game is built for example).
 * Would've really liked to make it more aestetic, the use of primitive shapes was the fastest way I could make it work in the limited time frame without using existing assets.
-* Wanted to use the command pattern like in the game itself in the user editor, probably the first feature I would have added given more time.
+* Wanted to use the command pattern like in the game itself in the level editor, probably the first feature I would have added given more time so it's easy to fix mistakes in the editor instead of reapplying the correct element.
