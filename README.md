@@ -1,6 +1,6 @@
 # SimplePuzzleGame
 
-Developed within a 2-week constraint, this simple turn-based Sokoban-style game in Unity (C#) uses entanglement-like behavior and interactions between objects of different types/colors. The game supports built-in levels as well as custom levels created in the in-game level editor, which features intuitive 'painting' tools for level design. Additionally, players can fix mistakes with the undo feature that allows them to revert moves all the way back to the start of the level, along with an instant restart button for quick puzzle resets.
+Developed within a 3-week constraint, this simple turn-based Sokoban-style game in Unity (C#) uses entanglement-like behavior and interactions between objects of different types/colors. The game supports built-in levels as well as custom levels created in the in-game level editor, which features intuitive 'painting' tools for level design. Additionally, players can fix mistakes with the undo feature that allows them to revert moves all the way back to the start of the level, along with an instant restart button for quick puzzle resets.
 
 ## Controls:
 
