@@ -39,3 +39,19 @@ Saved Level Solved
 Level Example
 
 ![SPG_gif](ReadmeImages/SPG_gif.gif)</br>
+
+## Main Goals for development:
+* A fully functional game with modular push mechanics and a level editor.
+* Make things relatively lightweight, makes objects behavior and instancing shared as much as possible (used flyweight/type object pattern for this) so large levels will remain lightweight.
+* The game must have undo and instant restart feature (solved with the Command pattern) 
+
+## Challenges
+* Making the push mechanic consistent with all edge cases and easily controlled in a chain of pushes, solved by defining each type .
+* The level editor took the bulk of the work since it required a lot of UI code work so the level is displayed correctly for editing and bound correctly to the level coordinates.
+* JSON serialization of of the levels required some extra code work to serialize/deserialize list of custom data types like barriers.
+* Also, since level editor UI, Game Grid Coordinates and the Game World itself in the scene have different coordinate systems, making sure everything translates correctly was a bit of a trial and error.
+
+## What I would've done differently:
+* More levels, most of the 2 weeks went to making sure everything works correctly, not leaving enough time to build enough levels to really explore the possibilities of the mechanics (another block color with different properties could be easily added with not much coding with how the game is built for example).
+* Would've really liked to make it more aestetic, the use of primitive shapes was the fastest way I could make it work in the limited time frame without using existing assets.
+* Wanted to use the command pattern like in the game itself in the user editor, probably the first feature I would have added given more time.
