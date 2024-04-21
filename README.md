@@ -57,6 +57,6 @@ Developed within a 3-week constraint, this simple turn-based Sokoban-style game 
 
 ## What I Would've Done Differently
 
-* More levels: Most of the 2 weeks went to making sure everything works correctly, not leaving enough time to build enough levels to really explore the possibilities of the mechanics.
+* More levels: Most of the development time went on making sure everything works correctly, not leaving enough time to build enough levels to really explore the possibilities of the mechanics.
 * Aesthetic improvements: Would've liked to make it more aesthetic. Using primitive shapes was the fastest way to make it work in the limited time frame without using existing assets.
 * Command pattern in the level editor: Would've added the command pattern to the level editor given more time, making it easy to fix mistakes instead of reapplying the correct element.
